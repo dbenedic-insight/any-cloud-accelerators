@@ -1,10 +1,10 @@
 ARG BASEIMAGE=
 
-FROM ${BASEIMAGE} as build
+FROM ${BASEIMAGE} AS build
 ARG VERSION=12.16.3
 ARG ARCHIVE=node-v${VERSION}-linux-x64.tar.gz
 
-RUN apt-get update && apt-get install -y -qq \
+RUN apt-get update -qq && apt-get install -y -qq \
   curl \
   gnupg
 
@@ -14,7 +14,7 @@ RUN curl -O https://nodejs.org/dist/v${VERSION}/SHASUMS256.txt
 RUN grep ${ARCHIVE} SHASUMS256.txt | sha256sum -c -
 RUN tar xzf ${ARCHIVE} -C node --strip-components 1
 
-FROM ${BASEIMAGE} as final
+FROM ${BASEIMAGE} AS final
 ARG NODEPATH=/usr/local/src/node
 
 WORKDIR ${NODEPATH}

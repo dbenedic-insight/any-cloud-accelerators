@@ -7,14 +7,19 @@ LABEL source="https://github.com/dbenedic-insight/any-cloud-accelerators"
 ARG GOROOT=/usr/local/go
 ARG GOPATH=/usr/local/src/go
 ARG NODEPATH=/usr/local/src/node
+ARG PYTHONPATH=/usr/local/src/python
 
 WORKDIR ${GOPATH}
 ENV GOPATH="${GOPATH}"
 WORKDIR ${GOROOT}
 ENV GOROOT="${GOROOT}"
+ENV PATH="${GOROOT}/bin:${GOPATH}/bin:${PATH}"
 WORKDIR ${NODEPATH}
 ENV NODEPATH=${NODEPATH}
-ENV PATH="${GOROOT}/bin:${GOPATH}/bin:${NODEPATH}/bin:${PATH}"
+ENV PATH="${NODEPATH}/bin:${PATH}"
+WORKDIR ${PYTHONPATH}
+ENV PYTHONPATH=${PYTHONPATH}
+ENV PATH="${PYTHONPATH}/bin:${PATH}"
 
 WORKDIR /
 ENV DEBIAN_FRONTEND=noninteractive

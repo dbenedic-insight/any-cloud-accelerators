@@ -1,6 +1,6 @@
 ARG BASEIMAGE=
 
-FROM ${BASEIMAGE} as build
+FROM ${BASEIMAGE} AS build
 ARG VERSION=
 ARG ARCHIVE=go${VERSION}.linux-amd64.tar.gz
 ARG GOSHASUM=1c39eac4ae95781b066c144c58e45d6859652247f7515f0d2cba7be7d57d2226
@@ -15,7 +15,7 @@ RUN echo "$GOSHASUM  $ARCHIVE" > SHA256SUM.txt # two spaces between the sum and 
 RUN grep ${ARCHIVE} SHA256SUM.txt | sha256sum -c -
 RUN tar xzf $ARCHIVE
 
-FROM ${BASEIMAGE} as final
+FROM ${BASEIMAGE} AS final
 
 WORKDIR ${GOROOT}
 COPY --from=build /usr/local/src/go/src ./src

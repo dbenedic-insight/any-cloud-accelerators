@@ -5,7 +5,7 @@ FROM ${GOIMAGE} AS build
 ARG VERSION=latest
 ARG MODULE=github.com/hashicorp/packer
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -qq && apt-get install -y \
     git \
     build-essential
 

@@ -1,10 +1,10 @@
 ARG BASEIMAGE=
 ARG GOIMAGE=
 
-FROM ${GOIMAGE} as build
+FROM ${GOIMAGE} AS build
 ARG VERSION=latest
 
-RUN apt-get update && apt-get install -y -qq \
+RUN apt-get update -qq && apt-get install -y -qq \
     git
 
 WORKDIR /usr/local/src
@@ -16,7 +16,7 @@ RUN if [ "$VERSION" = "latest" ]; \
 WORKDIR /usr/local/src/terraform
 RUN go install .
 
-FROM ${BASEIMAGE} as final
+FROM ${BASEIMAGE} AS final
 
 WORKDIR /usr/local/bin
 COPY --from=build ${GOPATH}/bin/terraform .

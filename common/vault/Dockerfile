@@ -9,7 +9,7 @@ FROM ${BASEIMAGE} AS build
 ARG VERSION=latest
 ARG MODE=
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y -qq \
     git \
     build-essential \
     curl \
@@ -20,7 +20,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | \
     tee /etc/apt/sources.list.d/yarn.list
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y -qq \
     yarn
 
 WORKDIR ${GOROOT}
@@ -41,6 +41,11 @@ RUN if [ "MODE" = "ui" ]; \
     then make static-dist dev-ui; \
     else make dev; \
     fi
+
+FROM ${BASEIMAGE} as final
+
+WORKDIR /usr/local/bin
+COPY --from=build /usr/local/src/vault/bin/vault .
 
 WORKDIR /
 

@@ -15,7 +15,7 @@ PACKER_IMAGE 					= $(IMAGE_PREFIX)-packer
 PACKER_VERSION 				?= 1.5.6
 PACKER_IMAGE_TAG			= $(PACKER_IMAGE):$(PACKER_VERSION)
 GO_IMAGE							= $(IMAGE_PREFIX)-go
-GO_VERSION						?= 1.12.17
+GO_VERSION						?= 1.14.3
 GO_IMAGE_TAG					= $(GO_IMAGE):$(GO_VERSION)
 NODE_IMAGE						= $(IMAGE_PREFIX)-node
 NODE_VERSION					?= 10.20.1
@@ -51,6 +51,8 @@ packer: base go ## Builds packer container
 
 docker: ## Prints docker version
 				docker version -f "{{.Client.Platform.Name}} v{{.Client.Version}}"
+
+common: terraform vault ## Builds all common images in toolchain
 
 clean: ## Removes all container images associated with this repo
 				docker rmi -f $(REPO_IMAGES)

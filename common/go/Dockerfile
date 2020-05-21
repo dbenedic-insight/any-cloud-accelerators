@@ -3,9 +3,9 @@ ARG BASEIMAGE=
 FROM ${BASEIMAGE} as build
 ARG VERSION=
 ARG ARCHIVE=go${VERSION}.linux-amd64.tar.gz
-ARG GOSHASUM=a53dd476129d496047487bfd53d021dd17e0c96895865a0e7d0469ce3db8c8d2
+ARG GOSHASUM=1c39eac4ae95781b066c144c58e45d6859652247f7515f0d2cba7be7d57d2226
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y -qq \
   curl \
   git
 

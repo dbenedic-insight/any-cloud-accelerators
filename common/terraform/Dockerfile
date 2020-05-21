@@ -4,7 +4,7 @@ ARG GOIMAGE=
 FROM ${GOIMAGE} as build
 ARG VERSION=latest
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y -qq \
     git
 
 WORKDIR /usr/local/src

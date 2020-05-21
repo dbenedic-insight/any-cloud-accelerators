@@ -4,7 +4,7 @@ FROM ${BASEIMAGE} as build
 ARG VERSION=12.16.3
 ARG ARCHIVE=node-v${VERSION}-linux-x64.tar.gz
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y -qq \
   curl \
   gnupg
 

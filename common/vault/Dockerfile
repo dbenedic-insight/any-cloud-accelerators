@@ -46,6 +46,7 @@ FROM ${BASEIMAGE} as final
 
 WORKDIR /usr/local/bin
 COPY --from=build /usr/local/src/vault/bin/vault .
+RUN vault -autocomplete-install
 
 WORKDIR /
 

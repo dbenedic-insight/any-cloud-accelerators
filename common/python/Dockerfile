@@ -28,6 +28,13 @@ RUN ./configure --enable-optimizations --with-ensurepip=install --prefix=${PYTHO
     && make \
     && make install
 
+FROM ${BASEIMAGE} as final
+
+WORKDIR /usr/local/bin
+COPY --from=build ${PYTHONPATH} ${PYTHONPATH}
+RUN ln -s ${BUILDPATH}/python ${BUILDPATH}/python3 \
+    && ln -s ${BUILDPATH}/pip ${BUILDPATH}/pip3 \
+
 WORKDIR /
 
 ENTRYPOINT ["/bin/bash"]

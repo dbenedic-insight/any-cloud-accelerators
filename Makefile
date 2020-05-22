@@ -26,6 +26,9 @@ PYTHON_IMAGE_TAG			= $(PYTHON_IMAGE):$(PYTHON_VERSION)
 OPENSSL_IMAGE					= $(IMAGE_PREFIX)-openssl
 OPENSSL_VERSION				?= 1.1.1g
 OPENSSL_IMAGE_TAG			= $(OPENSSL_IMAGE):$(OPENSSL_VERSION)
+IBM_CLI_IMAGE					= $(IMAGE_PREFIX)-ibm-cli
+IBM_CLI_VERSION				?= 1.1.0
+IBM_CLI_IMAGE_TAG			= $(IBM_CLI_IMAGE):$(IBM_CLI_VERSION)
 IBM_TF_IMAGE					= $(IMAGE_PREFIX)-ibm-tf
 IBM_TF_VERSION				?= 0.28.0
 IBM_TF_IMAGE_TAG			= $(IBM_TF_IMAGE):$(IBM_TF_VERSION)
@@ -41,28 +44,28 @@ help: ## This help
 .DEFAULT_GOAL := help
 
 base: docker ## Builds base container
-				docker build ./common/base --build-arg VERSION=$(BASE_VERSION) -t $(BASE_IMAGE_TAG)
+				docker build --rm ./common/base --build-arg VERSION=$(BASE_VERSION) -t $(BASE_IMAGE_TAG)
 
 openssl: base ## Builds an openssl container
-				docker build ./common/openssl --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(OPENSSL_VERSION) -t $(OPENSSL_IMAGE_TAG)
+				docker build --rm ./common/openssl --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(OPENSSL_VERSION) -t $(OPENSSL_IMAGE_TAG)
 
 go: base ## Builds a go build container
-				docker build ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) -t $(GO_IMAGE_TAG)
+				docker build --rm ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) -t $(GO_IMAGE_TAG)
 
 node: base ## Builds a nodejs build container
-				docker build ./common/node --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(NODE_VERSION) -t $(NODE_IMAGE_TAG)
+				docker build --rm ./common/node --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(NODE_VERSION) -t $(NODE_IMAGE_TAG)
 
 python: base openssl ## Builds a python build container
-				docker build ./common/python --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PYTHON_VERSION) -t $(PYTHON_IMAGE_TAG)
+				docker build --rm ./common/python --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PYTHON_VERSION) -t $(PYTHON_IMAGE_TAG)
 
 vault: base go node ## Builds vault container
-				docker build ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
+				docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
 
 terraform: base go ## Builds terraform container
-				docker build ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)
+				docker build --rm ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)
 
 packer: base go ## Builds packer container
-				docker build ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
+				docker build --rm ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
 
 docker: ## Prints docker version
 				docker version -f "{{.Client.Platform.Name}} v{{.Client.Version}}"
@@ -70,9 +73,12 @@ docker: ## Prints docker version
 common: terraform vault ## Builds all common images in toolchain
 
 ibm-tf: terraform go ## Builds a terraform container with the IBM provider plugin
-				docker build ./IBM/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(IBM_TF_VERSION) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) -t $(IBM_TF_IMAGE_TAG)
+				docker build --rm ./IBM/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(IBM_TF_VERSION) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) -t $(IBM_TF_IMAGE_TAG)
 
-ibm: ibm-tf ## Builds all IBM Cloud accelerators in containers
+ibm-cli: base openssl ## Builds the IBM Cloud CLI with plugins in a container
+				docker build --rm ./IBM/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(IBM_CLI_VERSION) -t $(IBM_CLI_IMAGE_TAG)
+
+ibm: ibm-tf ibm-cli ## Builds all IBM Cloud accelerators in containers
 
 clouds: ibm ## Builds all cloud accelerators in containers
 

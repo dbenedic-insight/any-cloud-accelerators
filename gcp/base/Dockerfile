@@ -1,0 +1,9 @@
+ARG BASEIMAGE=
+
+FROM ${BASEIMAGE} AS build
+ARG VERSION=
+
+ARG SDKPATH=/usr/lib/google-cloud-sdk
+ENV SDKPATH="${SDKPATH}"
+
+ENTRYPOINT ["/bin/bash"]

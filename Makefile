@@ -38,6 +38,12 @@ AZURE_CLI_IMAGE_TAG  = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
 AZURE_TF_IMAGE       = $(IMAGE_PREFIX)-az-tf
 AZURE_TF_VERSION    ?= 0.28.0
 AZURE_TF_IMAGE_TAG   = $(AZURE_TF_IMAGE):$(AZURE_TF_VERSION)
+GCP_BASE_IMAGE			 = ${IMAGE_PREFIX}-gcp-base
+GCP_BASE_VERSION		 = 1.0.0
+GCP_BASE_IMAGE_TAG	 = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
+GCP_CLI_IMAGE        = $(IMAGE_PREFIX)-gcp-sdk
+GCP_CLI_VERSION     ?= 293.0.0
+GCP_CLI_IMAGE_TAG    = $(GCP_CLI_IMAGE):$(GCP_CLI_VERSION)
 
 # HELP
 # This will output the help for each task
@@ -88,6 +94,14 @@ ibm: ibm-tf ibm-cli ## Builds all IBM Cloud accelerators in containers
 
 az-cli: base openssl python ## Builds an azcli container
 	docker build --rm ./azure/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AZURE_CLI_VERSION) -t $(AZURE_CLI_IMAGE_TAG)
+
+azure: base az-cli ## Builds all Azure cloud accelerators in containers
+
+gcp-base: base ## Builds a common intermediate base container for GCP
+	docker build --rm ./gcp/base --build-arg BASEIMAGE=${BASE_IMAGE_TAG} --build-arg VERSION=$(GCP_BASE_VERSION) -t $(GCP_BASE_IMAGE_TAG)
+
+gcp-sdk: gcp-base python openssl ## Builds the Google Cloud Platform (GCP) SDK in a container
+	docker build --rm ./gcp/sdk --build-arg BASEIMAGE=$(GCP_BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(GCP_CLI_VERSION) -t $(GCP_CLI_IMAGE_TAG)
 
 clouds: ibm ## Builds all cloud accelerators in containers
 

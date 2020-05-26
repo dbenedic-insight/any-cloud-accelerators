@@ -32,6 +32,12 @@ IBM_CLI_IMAGE_TAG    = $(IBM_CLI_IMAGE):$(IBM_CLI_VERSION)
 IBM_TF_IMAGE         = $(IMAGE_PREFIX)-ibm-tf
 IBM_TF_VERSION      ?= 0.28.0
 IBM_TF_IMAGE_TAG     = $(IBM_TF_IMAGE):$(IBM_TF_VERSION)
+AZURE_CLI_IMAGE      = $(IMAGE_PREFIX)-az-cli
+AZURE_CLI_VERSION   ?= 2.6.0
+AZURE_CLI_IMAGE_TAG  = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
+AZURE_TF_IMAGE       = $(IMAGE_PREFIX)-az-tf
+AZURE_TF_VERSION    ?= 0.28.0
+AZURE_TF_IMAGE_TAG   = $(AZURE_TF_IMAGE):$(AZURE_TF_VERSION)
 
 # HELP
 # This will output the help for each task
@@ -79,6 +85,9 @@ ibm-cli: base openssl ## Builds the IBM Cloud CLI with plugins in a container
 	docker build --rm ./IBM/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(IBM_CLI_VERSION) -t $(IBM_CLI_IMAGE_TAG)
 
 ibm: ibm-tf ibm-cli ## Builds all IBM Cloud accelerators in containers
+
+az-cli: base openssl python ## Builds an azcli container
+	docker build --rm ./azure/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AZURE_CLI_VERSION) -t $(AZURE_CLI_IMAGE_TAG)
 
 clouds: ibm ## Builds all cloud accelerators in containers
 

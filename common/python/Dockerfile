@@ -11,7 +11,8 @@ ARG SHASUM=a7c10a2ac9d62de75a0ca5204e2e7d07
 RUN apt-get update -qq && apt-get install -y -qq \
   curl \
   build-essential \
-  zlib1g-dev
+  zlib1g-dev \
+  libsqlite3-dev
 
 WORKDIR /usr/local/src
 RUN curl -L -O https://www.python.org/ftp/python/${VERSION}/$ARCHIVE
@@ -24,16 +25,16 @@ WORKDIR /usr/local/src/python-build
 COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
 ENV LDFLAGS="-L$OPENSSLPATH/lib"
 ENV CPPFLAGS="-I$OPENSSLPATH/include"
-RUN ./configure --enable-optimizations --with-ensurepip=install --prefix=${PYTHONPATH} --with-openssl=${OPENSSLPATH} \
+RUN ./configure --enable-optimizations --with-ensurepip=install --prefix=${PYTHONPATH} --with-openssl=${OPENSSLPATH} --with-pydebug \
     && make \
     && make install
 
 FROM ${BASEIMAGE} as final
 
-WORKDIR /usr/local/bin
+WORKDIR ${PYTHONPATH}/bin
 COPY --from=build ${PYTHONPATH} ${PYTHONPATH}
-RUN ln -s ${BUILDPATH}/python ${BUILDPATH}/python3 \
-    && ln -s ${BUILDPATH}/pip ${BUILDPATH}/pip3 \
+RUN ln -s ${PYTHONPATH}/bin/python3 ${PYTHONPATH}/bin/python \
+    && ln -s ${PYTHONPATH}/bin/pip3 ${PYTHONPATH}/bin/pip
 
 WORKDIR /
 

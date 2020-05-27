@@ -23,16 +23,6 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.c
     && apt-get update -qq && apt-get install -y \
     google-cloud-sdk=${APTPKG}
 
-FROM ${BASEIMAGE} AS final
-
-WORKDIR /usr/local/bin
-COPY --from=build ${SDKPATH} ${SDKPATH}
-RUN ln -s gcloud ${SDKPATH}/bin/gcloud \
-    && ln -s bq ${SDKPATH}/bin/bq \
-    && ln -s git-credential-gcloud.sh ${SDKPATH}/bin/git-credential-gcloud.sh \
-    && ln -s gsutil ${SDKPATH}/bin/gsutil \
-    && ln -s anthoscli ${SDKPATH}/bin/anthoscli \
-
 WORKDIR /
 
 ENTRYPOINT ["/bin/bash"]

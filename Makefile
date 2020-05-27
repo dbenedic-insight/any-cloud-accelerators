@@ -44,6 +44,9 @@ GCP_BASE_IMAGE_TAG	 = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
 GCP_CLI_IMAGE        = $(IMAGE_PREFIX)-gcp-sdk
 GCP_CLI_VERSION     ?= 293.0.0
 GCP_CLI_IMAGE_TAG    = $(GCP_CLI_IMAGE):$(GCP_CLI_VERSION)
+AWS_CLI_IMAGE        = $(IMAGE_PREFIX)-aws-cli
+AWS_CLI_VERSION     ?= 2.0.17
+AWS_CLI_IMAGE_TAG    = $(AWS_CLI_IMAGE):$(AWS_CLI_VERSION)
 
 # HELP
 # This will output the help for each task
@@ -103,7 +106,14 @@ gcp-base: base ## Builds a common intermediate base container for GCP
 gcp-sdk: gcp-base python openssl ## Builds the Google Cloud Platform (GCP) SDK in a container
 	docker build --rm ./gcp/sdk --build-arg BASEIMAGE=$(GCP_BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(GCP_CLI_VERSION) -t $(GCP_CLI_IMAGE_TAG)
 
-clouds: ibm ## Builds all cloud accelerators in containers
+gcp: base gcp-sdk
+
+aws-cli: base openssl python ## Builds an azcli container
+	docker build --rm ./aws/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AWS_CLI_VERSION) -t $(AWS_CLI_IMAGE_TAG)
+
+aws: aws-cli
+
+clouds: aws azure gcp ibm ## Builds all cloud accelerators in containers
 
 clean: ## Removes all container images associated with this repo
 	docker rmi -f $(REPO_IMAGES)

@@ -24,8 +24,8 @@ RUN if [ "$VERSION" = "latest" ]; \
     fi
 
 WORKDIR ${PYTHONMODULEPATH}
-RUN python -m pip install --install-option="--prefix=${MODULEDIR}" botocore \
-    && python -m pip install --install-option="--prefix=${MODULEDIR}" jmespath
+RUN python -m pip install --install-option="--prefix=${PYTHONMODULEPATH}" botocore \
+    && python -m pip install --install-option="--prefix=${PYTHONMODULEPATH}" jmespath
 
 WORKDIR /usr/local/src/aws-cli
 RUN python -m pip install -r requirements.txt \
@@ -34,8 +34,8 @@ RUN python -m pip install -r requirements.txt \
 FROM ${BASEIMAGE} as final
 
 WORKDIR ${PYTHONMODULEPATH}
-COPY --from=build ${PYTHONMODULEPATH}/botocore .
-COPY --from=build ${PYTHONMODULEPATH}/jmespath .
+COPY --from=build ${PYTHONMODULEPATH} .
+RUN export PYTHONPATH="${PYTHONPATH}:${PYTHONMODULEPATH}/lib/python$(python -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')")/site-packages"
 
 WORKDIR /usr/local/bin
 COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}

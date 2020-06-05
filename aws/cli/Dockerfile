@@ -31,27 +31,8 @@ WORKDIR /usr/local/src/aws-cli
 RUN python -m pip install -r requirements.txt \
     && python -m pip install -e .
 
-FROM ${BASEIMAGE} as final
-
-WORKDIR ${PYTHONMODULEPATH}
-COPY --from=build ${PYTHONMODULEPATH} .
-RUN export PYTHONPATH="${PYTHONPATH}:${PYTHONMODULEPATH}/lib/python$(python -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')")/site-packages"
-
-WORKDIR /usr/local/bin
-COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
-COPY --from=python ${PYTHONPATH} ${PYTHONPATH}
-COPY --from=build /usr/local/src/aws-cli/bin .
-COPY --from=build /usr/bin/groff .
-RUN echo "complete -C '/usr/local/bin/aws_completer' aws" > ~/.bashrc
-
-WORKDIR ${PYTHONPATH}/awscli
-COPY --from=build /usr/local/src/aws-cli/awscli .
-
-
 WORKDIR /
 ENV PYTHONWARNINGS="ignore::DeprecationWarning"
 ENV AWS_ACCESS_KEY_ID=
 ENV AWS_SECRET_ACCESS_KEY=
-ENV AWS_CONFIG_FILE=
-ENV AWS_PROFILE=
 ENTRYPOINT ["/bin/bash"]

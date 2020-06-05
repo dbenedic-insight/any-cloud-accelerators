@@ -12,7 +12,9 @@ RUN apt-get update -qq && apt-get install -y -qq \
   curl \
   build-essential \
   zlib1g-dev \
-  libsqlite3-dev
+  libsqlite3-dev \
+  libffi-dev \
+  gcc
 
 WORKDIR /usr/local/src
 RUN curl -L -O https://www.python.org/ftp/python/${VERSION}/$ARCHIVE
@@ -28,13 +30,13 @@ ENV CPPFLAGS="-I$OPENSSLPATH/include"
 RUN ./configure --enable-optimizations --with-ensurepip=install --prefix=${PYTHONPATH} --with-openssl=${OPENSSLPATH} --with-pydebug \
     && make \
     && make install
+RUN pip3 install --upgrade pip
 
 FROM ${BASEIMAGE} as final
 
 WORKDIR ${PYTHONPATH}/bin
 COPY --from=build ${PYTHONPATH} ${PYTHONPATH}
-RUN ln -s ${PYTHONPATH}/bin/python3 ${PYTHONPATH}/bin/python \
-    && ln -s ${PYTHONPATH}/bin/pip3 ${PYTHONPATH}/bin/pip
+RUN ln -s ${PYTHONPATH}/bin/python3 ${PYTHONPATH}/bin/python
 
 WORKDIR /
 

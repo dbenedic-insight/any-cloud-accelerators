@@ -1,5 +1,8 @@
 ARG BASEIMAGE=
 ARG GOIMAGE=
+ARG OPENSSLIMAGE=
+
+FROM ${OPENSSLIMAGE} AS openssl
 
 FROM ${GOIMAGE} AS build
 ARG VERSION=latest
@@ -20,6 +23,9 @@ FROM ${BASEIMAGE} AS final
 
 WORKDIR /usr/local/bin
 COPY --from=build ${GOPATH}/bin/terraform .
+
+WORKDIR /etc/ssl/certs
+COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 
 WORKDIR /
 

@@ -76,6 +76,15 @@ python: base openssl ## Builds a python build container
 vault: base go node ## Builds vault container
 	docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
 
+vault-dev: ## Runs vault server in dev mode with a second vault client container with docker compose
+	docker-compose -f ./common/vault/docker-compose.yml build --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) --parallel
+	docker-compose -f ./common/vault/docker-compose.yml up --detach
+	docker-compose -f ./common/vault/docker-compose.yml logs --tail="all"
+	docker-compose -f ./common/vault/docker-compose.yml run --rm client
+
+vault-dev-kill: ## Kills vault server running via docker-compose
+	docker-compose -f ./common/vault/docker-compose.yml kill
+
 terraform: base go openssl ## Builds terraform container
 	docker build --rm ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)
 

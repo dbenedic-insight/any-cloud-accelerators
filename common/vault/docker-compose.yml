@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  server.dev:
+    build: .
+    ports:
+      - "8200:8200"
+      - "8201:8201"
+    entrypoint: ["vault", "server", "--dev"]
+
+  client:
+    build: .
+    environment:
+      - VAULT_ADDR="http://server.dev:8200"
+      - VAULT_DEV_ROOT_TOKEN_ID=
+    entrypoint: ["/bin/bash"]
+    tty: true

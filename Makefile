@@ -38,9 +38,9 @@ AZURE_CLI_IMAGE_TAG  = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
 AZURE_TF_IMAGE       = $(IMAGE_PREFIX)-az-tf
 AZURE_TF_VERSION    ?= 0.28.0
 AZURE_TF_IMAGE_TAG   = $(AZURE_TF_IMAGE):$(AZURE_TF_VERSION)
-GCP_BASE_IMAGE			 = ${IMAGE_PREFIX}-gcp-base
-GCP_BASE_VERSION		 = 1.0.0
-GCP_BASE_IMAGE_TAG	 = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
+GCP_BASE_IMAGE       = ${IMAGE_PREFIX}-gcp-base
+GCP_BASE_VERSION     = 1.0.0
+GCP_BASE_IMAGE_TAG   = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
 GCP_CLI_IMAGE        = $(IMAGE_PREFIX)-gcp-sdk
 GCP_CLI_VERSION     ?= 293.0.0
 GCP_CLI_IMAGE_TAG    = $(GCP_CLI_IMAGE):$(GCP_CLI_VERSION)
@@ -76,11 +76,11 @@ python: base openssl ## Builds a python build container
 vault: base go node ## Builds vault container
 	docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
 
-vault-dev: ## Runs vault server in dev mode with a second vault client container with docker compose
+vault-dev: ## Runs vault server with a second vault client container with docker compose
 	docker-compose -f ./common/vault/docker-compose.yml build --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) --parallel
 	docker-compose -f ./common/vault/docker-compose.yml up --detach
 	docker-compose -f ./common/vault/docker-compose.yml logs --tail="all"
-	docker-compose -f ./common/vault/docker-compose.yml run --rm client
+	docker run
 
 vault-dev-kill: ## Kills vault server running via docker-compose
 	docker-compose -f ./common/vault/docker-compose.yml kill

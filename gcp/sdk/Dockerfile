@@ -11,7 +11,8 @@ ARG APTPKG=${VERSION}-0
 
 RUN apt-get update -qq && apt-get install -y -qq \
     curl \
-    gnupg
+    gnupg \
+    libsqlite3-0
 
 COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
 COPY --from=python ${PYTHONPATH} ${PYTHONPATH}
@@ -22,6 +23,8 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.c
     | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - \
     && apt-get update -qq && apt-get install -y \
     google-cloud-sdk=${APTPKG}
+
+ENV PYTHONWARNINGS="ignore"
 
 WORKDIR /
 

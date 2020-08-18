@@ -1,6 +1,7 @@
 SHELL                  = /bin/sh
 IMAGE_PREFIX          ?= aca
 REPO_IMAGES           := $(shell docker images -q '$(PREFIX)*' | uniq)
+DANGLING_IMAGES       := $(shell docker images --filter "dangling=true" -q)
 BASE_IMAGE             = $(IMAGE_PREFIX)-base
 BASE_VERSION          ?= 18.04
 BASE_IMAGE_TAG         = $(BASE_IMAGE):$(BASE_VERSION)
@@ -15,7 +16,7 @@ PACKER_IMAGE           = $(IMAGE_PREFIX)-packer
 PACKER_VERSION        ?= 1.5.6
 PACKER_IMAGE_TAG       = $(PACKER_IMAGE):$(PACKER_VERSION)
 GO_IMAGE               = $(IMAGE_PREFIX)-go
-GO_VERSION            ?= 1.14.7
+GO_VERSION            ?= 1.15
 GO_IMAGE_TAG           = $(GO_IMAGE):$(GO_VERSION)
 TERRAFORMER_IMAGE      = $(IMAGE_PREFIX)-terraformer
 TERRAFORMER_VERSION   ?= 0.8.8
@@ -70,8 +71,8 @@ base: docker ## Builds base container
 openssl: base ## Builds an openssl container
 	docker build --rm ./common/openssl --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(OPENSSL_VERSION) -t $(OPENSSL_IMAGE_TAG)
 
-go: base ## Builds a go build container
-	docker build --rm ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) -t $(GO_IMAGE_TAG)
+go: base openssl ## Builds a go build container
+	docker build --rm ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) -t $(GO_IMAGE_TAG)
 
 node: base ## Builds a nodejs build container
 	docker build --rm ./common/node --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(NODE_VERSION) -t $(NODE_IMAGE_TAG)
@@ -127,6 +128,9 @@ terraformer: base go openssl python gcp terraform ## Builds terraformer containe
 ansible: base python
 	docker build --rm ./common/ansible --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(ANSIBLE_VERSION) -t $(ANSIBLE_IMAGE_TAG)
 
-clean: ## Removes all container images associated with this repo
+tidy: ## Removes intermediate build containers (aka "dangling")
+	docker rmi -f $(DANGLING_IMAGES)
+
+clean: tidy ## Removes all container images associated with this repo
 	docker image prune -f
 	docker rmi -f $(REPO_IMAGES)

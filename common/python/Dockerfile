@@ -30,6 +30,7 @@ ENV CPPFLAGS="-I$OPENSSLPATH/include"
 RUN ./configure --enable-optimizations --with-ensurepip=install --prefix=${PYTHONPATH} --with-openssl=${OPENSSLPATH} --with-pydebug \
     && make \
     && make install
+
 RUN pip3 install --upgrade pip
 
 FROM ${BASEIMAGE} as final

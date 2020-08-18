@@ -46,11 +46,14 @@ GCP_BASE_IMAGE         = ${IMAGE_PREFIX}-gcp-base
 GCP_BASE_VERSION       = 1.0.0
 GCP_BASE_IMAGE_TAG     = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
 GCP_CLI_IMAGE          = $(IMAGE_PREFIX)-gcp-sdk
-GCP_CLI_VERSION       ?= 293.0.0
+GCP_CLI_VERSION       ?= 304.0.0
 GCP_CLI_IMAGE_TAG      = $(GCP_CLI_IMAGE):$(GCP_CLI_VERSION)
 AWS_CLI_IMAGE          = $(IMAGE_PREFIX)-aws-cli
 AWS_CLI_VERSION       ?= 1.18.73
 AWS_CLI_IMAGE_TAG      = $(AWS_CLI_IMAGE):$(AWS_CLI_VERSION)
+ANSIBLE_IMAGE          = $(IMAGE_PREFIX)-ansible
+ANSIBLE_VERSION       ?= 2.9.12
+ANSIBLE_IMAGE_TAG      = $(ANSIBLE_IMAGE):$(ANSIBLE_VERSION)
 
 # HELP
 # This will output the help for each task
@@ -119,8 +122,11 @@ aws: aws-cli
 
 clouds: aws azure gcp ibm ## Builds all cloud accelerators in containers
 
-terraformer: base go openssl terraform ## Builds terraformer container
-	docker build --rm ./common/terraformer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg TERRAFORMIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg VERSION=$(TERRAFORMER_VERSION) -t $(TERRAFORMER_IMAGE_TAG)
+terraformer: base go openssl python gcp terraform ## Builds terraformer container
+	docker build --rm ./common/terraformer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg TERRAFORMIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg GCPCLIIMAGE=$(GCP_CLI_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(TERRAFORMER_VERSION) -t $(TERRAFORMER_IMAGE_TAG)
+
+ansible: base python
+	docker build --rm ./common/ansible --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(ANSIBLE_VERSION) -t $(ANSIBLE_IMAGE_TAG)
 
 tidy: ## Removes intermediate build containers (aka "dangling")
 	docker rmi -f $(DANGLING_IMAGES)

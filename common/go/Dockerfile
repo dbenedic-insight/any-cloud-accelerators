@@ -3,15 +3,22 @@ ARG BASEIMAGE=
 FROM ${BASEIMAGE} AS build
 ARG VERSION=
 ARG ARCHIVE=go${VERSION}.linux-amd64.tar.gz
-ARG GOSHASUM=4a7fa60f323ee1416a4b1425aefc37ea359e9d64df19c326a58953a97ad41ea5
+ARG TMPSHA=/tmp/goshasum
 
 RUN apt-get update && apt-get install -y -qq \
   curl \
   git
 
+# Scrapes golang dl page - BRITTLE
+RUN curl https://golang.org/dl/ \
+    | sed -n "/<a class=\"download\" href=\".*${ARCHIVE}\">/,/<\/tr>/p" \
+    | sed -n "s:.*<tt>\(.*\)</tt.*:\1:p" \
+    > $TMPSHA
+
 WORKDIR /usr/local/src
 RUN curl -L -O --insecure https://dl.google.com/go/$ARCHIVE
-RUN echo "$GOSHASUM  $ARCHIVE" > SHA256SUM.txt # two spaces between the sum and filename
+RUN export GOSHASUM=$(cat $TMPSHA) \
+    && echo "$GOSHASUM  $ARCHIVE" > SHA256SUM.txt # two spaces between the sum and filename
 RUN grep ${ARCHIVE} SHA256SUM.txt | sha256sum -c -
 RUN tar xzf $ARCHIVE
 

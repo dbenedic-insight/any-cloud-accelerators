@@ -1,4 +1,7 @@
 ARG BASEIMAGE=
+ARG OPENSSLIMAGE=
+
+FROM ${OPENSSLIMAGE} as openssl
 
 FROM ${BASEIMAGE} AS build
 ARG VERSION=
@@ -23,6 +26,9 @@ RUN grep ${ARCHIVE} SHA256SUM.txt | sha256sum -c -
 RUN tar xzf $ARCHIVE
 
 FROM ${BASEIMAGE} AS final
+
+WORKDIR /etc/ssl/certs
+COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 
 WORKDIR ${GOROOT}
 COPY --from=build /usr/local/src/go/src ./src

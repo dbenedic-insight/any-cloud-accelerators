@@ -24,8 +24,8 @@ RUN if [ "$VERSION" = "latest" ]; \
     fi
 
 WORKDIR ${PYTHONMODULEPATH}
-RUN python -m pip install --install-option="--prefix=${PYTHONMODULEPATH}" botocore \
-    && python -m pip install --install-option="--prefix=${PYTHONMODULEPATH}" jmespath
+RUN python -m pip install --prefix $PYTHONMODULEPATH botocore \
+    && python -m pip install --prefix $PYTHONMODULEPATH jmespath
 
 WORKDIR /usr/local/src/aws-cli
 RUN python -m pip install -r requirements.txt \

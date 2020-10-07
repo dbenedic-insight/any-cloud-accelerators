@@ -6,7 +6,7 @@ FROM ${OPENSSLIMAGE} AS openssl
 FROM ${BASEIMAGE} AS build
 ARG VERSION=
 ARG ARCHIVE=Python-${VERSION}.tgz
-ARG SHASUM=a7c10a2ac9d62de75a0ca5204e2e7d07
+ARG TMPSHA=/tmp/pythonshasum
 
 RUN apt-get update -qq && apt-get install -y -qq \
   curl \
@@ -16,9 +16,19 @@ RUN apt-get update -qq && apt-get install -y -qq \
   libffi-dev \
   gcc
 
+# Scrapes python dl page - BRITTLE
+RUN miniversion=$(echo $VERSION | sed -e 's/\.//g') \
+    && url="https://www.python.org/downloads/release/python-${miniversion}/" \
+    && curl $url \
+    | sed -n "/<a href=\".*Python-${VERSION}.tgz\">/,/<\/tr>/p" \
+    | sed -n "s:.*<td>\(.*\)</td.*:\1:p" \
+    | awk 'length($0) > 25 && length($0) < 35' \
+    > $TMPSHA
+
 WORKDIR /usr/local/src
 RUN curl -L -O https://www.python.org/ftp/python/${VERSION}/$ARCHIVE
-RUN echo "$SHASUM  $ARCHIVE" > MD5SUM.txt # two spaces between the sum and filename
+RUN export SHASUM=$(cat $TMPSHA) \
+    && echo "$SHASUM  $ARCHIVE" > MD5SUM.txt # two spaces between the sum and filename
 RUN grep ${ARCHIVE} MD5SUM.txt | md5sum -c -
 RUN mkdir python-build \
     && tar xzf $ARCHIVE -C python-build --strip-components 1

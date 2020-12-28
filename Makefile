@@ -3,26 +3,26 @@ IMAGE_PREFIX          ?= aca
 REPO_IMAGES           := $(shell docker images -q '$(PREFIX)*' | uniq)
 DANGLING_IMAGES       := $(shell docker images --filter "dangling=true" -q)
 BASE_IMAGE             = $(IMAGE_PREFIX)-base
-BASE_VERSION          ?= 18.04
+BASE_VERSION          ?= 20.04
 BASE_IMAGE_TAG         = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE            = $(IMAGE_PREFIX)-vault
-VAULT_VERSION         ?= 1.4.1
+VAULT_VERSION         ?= 1.6.0
 VAULT_IMAGE_TAG        = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_MODE            ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE        = $(IMAGE_PREFIX)-terraform
-TERRAFORM_VERSION     ?= 0.12.29
+TERRAFORM_VERSION     ?= 0.14.2
 TERRAFORM_IMAGE_TAG    = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE           = $(IMAGE_PREFIX)-packer
-PACKER_VERSION        ?= 1.5.6
+PACKER_VERSION        ?= 1.6.5
 PACKER_IMAGE_TAG       = $(PACKER_IMAGE):$(PACKER_VERSION)
 GO_IMAGE               = $(IMAGE_PREFIX)-go
-GO_VERSION            ?= 1.15
+GO_VERSION            ?= 1.15.6
 GO_IMAGE_TAG           = $(GO_IMAGE):$(GO_VERSION)
 TERRAFORMER_IMAGE      = $(IMAGE_PREFIX)-terraformer
 TERRAFORMER_VERSION   ?= 0.8.8
 TERRAFORMER_IMAGE_TAG  = $(TERRAFORMER_IMAGE):$(TERRAFORMER_VERSION)
 NODE_IMAGE             = $(IMAGE_PREFIX)-node
-NODE_VERSION          ?= 10.20.1
+NODE_VERSION          ?= 14.15.1
 NODE_IMAGE_TAG         = $(NODE_IMAGE):$(NODE_VERSION)
 PYTHON_IMAGE           = $(IMAGE_PREFIX)-python
 PYTHON_VERSION        ?= 3.9.0
@@ -31,28 +31,28 @@ OPENSSL_IMAGE          = $(IMAGE_PREFIX)-openssl
 OPENSSL_VERSION       ?= 1.1.1h
 OPENSSL_IMAGE_TAG      = $(OPENSSL_IMAGE):$(OPENSSL_VERSION)
 IBM_CLI_IMAGE          = $(IMAGE_PREFIX)-ibm-cli
-IBM_CLI_VERSION       ?= 1.1.0
+IBM_CLI_VERSION       ?= 1.2.3
 IBM_CLI_IMAGE_TAG      = $(IBM_CLI_IMAGE):$(IBM_CLI_VERSION)
 IBM_TF_IMAGE           = $(IMAGE_PREFIX)-ibm-tf
-IBM_TF_VERSION        ?= 0.28.0
+IBM_TF_VERSION        ?= 1.17.0
 IBM_TF_IMAGE_TAG       = $(IBM_TF_IMAGE):$(IBM_TF_VERSION)
 AZURE_CLI_IMAGE        = $(IMAGE_PREFIX)-az-cli
-AZURE_CLI_VERSION     ?= 2.6.0
+AZURE_CLI_VERSION     ?= 2.16.0
 AZURE_CLI_IMAGE_TAG    = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
 AZURE_TF_IMAGE         = $(IMAGE_PREFIX)-az-tf
-AZURE_TF_VERSION      ?= 0.28.0
+AZURE_TF_VERSION      ?= 2.40.0
 AZURE_TF_IMAGE_TAG     = $(AZURE_TF_IMAGE):$(AZURE_TF_VERSION)
 GCP_BASE_IMAGE         = ${IMAGE_PREFIX}-gcp-base
 GCP_BASE_VERSION       = 1.0.0
 GCP_BASE_IMAGE_TAG     = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
 GCP_CLI_IMAGE          = $(IMAGE_PREFIX)-gcp-sdk
-GCP_CLI_VERSION       ?= 304.0.0
+GCP_CLI_VERSION       ?= 320.0.0
 GCP_CLI_IMAGE_TAG      = $(GCP_CLI_IMAGE):$(GCP_CLI_VERSION)
 AWS_CLI_IMAGE          = $(IMAGE_PREFIX)-aws-cli
-AWS_CLI_VERSION       ?= 1.18.73
+AWS_CLI_VERSION       ?= 1.18.197
 AWS_CLI_IMAGE_TAG      = $(AWS_CLI_IMAGE):$(AWS_CLI_VERSION)
 ANSIBLE_IMAGE          = $(IMAGE_PREFIX)-ansible
-ANSIBLE_VERSION       ?= 2.9.12
+ANSIBLE_VERSION       ?= 2.10.4
 ANSIBLE_IMAGE_TAG      = $(ANSIBLE_IMAGE):$(ANSIBLE_VERSION)
 
 # HELP
@@ -126,7 +126,7 @@ terraformer: base go openssl python gcp terraform ## Builds terraformer containe
 	docker build --rm ./common/terraformer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg TERRAFORMIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg GCPCLIIMAGE=$(GCP_CLI_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(TERRAFORMER_VERSION) -t $(TERRAFORMER_IMAGE_TAG)
 
 ansible: base python
-	docker build --rm ./common/ansible --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(ANSIBLE_VERSION) -t $(ANSIBLE_IMAGE_TAG)
+	docker build --rm ./common/ansible --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(ANSIBLE_VERSION) -t $(ANSIBLE_IMAGE_TAG)
 
 tidy: ## Removes intermediate build containers (aka "dangling")
 	docker rmi -f $(DANGLING_IMAGES)

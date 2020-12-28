@@ -1,9 +1,13 @@
 ARG BASEIMAGE=
 ARG PYTHONIMAGE=
-ARG OPENSSL=
+ARG OPENSSLIMAGE=
+
+FROM ${OPENSSLIMAGE} AS openssl
 
 FROM ${PYTHONIMAGE} AS build
 ARG VERSION=latest
+
+COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
 
 RUN pip3 install --upgrade pip
 RUN pip3 install ansible==${VERSION}

@@ -54,6 +54,9 @@ AWS_CLI_IMAGE_TAG      = $(AWS_CLI_IMAGE):$(AWS_CLI_VERSION)
 ANSIBLE_IMAGE          = $(IMAGE_PREFIX)-ansible
 ANSIBLE_VERSION       ?= 2.10.4
 ANSIBLE_IMAGE_TAG      = $(ANSIBLE_IMAGE):$(ANSIBLE_VERSION)
+JQ_IMAGE               = $(IMAGE_PREFIX)-jq
+JQ_VERSION            ?= 1.6
+JQ_IMAGE_TAG           = $(JQ_IMAGE):$(JQ_VERSION)
 
 # HELP
 # This will output the help for each task
@@ -65,8 +68,8 @@ help: ## This help
 
 .DEFAULT_GOAL := help
 
-base: docker ## Builds base container
-	docker build --rm ./common/base --build-arg VERSION=$(BASE_VERSION) -t $(BASE_IMAGE_TAG)
+base: docker jq ## Builds base container
+	docker build --rm ./common/base --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg VERSION=$(BASE_VERSION) -t $(BASE_IMAGE_TAG)
 
 openssl: base ## Builds an openssl container
 	docker build --rm ./common/openssl --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(OPENSSL_VERSION) -t $(OPENSSL_IMAGE_TAG)
@@ -127,6 +130,9 @@ terraformer: base go openssl python gcp terraform ## Builds terraformer containe
 
 ansible: base python
 	docker build --rm ./common/ansible --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(ANSIBLE_VERSION) -t $(ANSIBLE_IMAGE_TAG)
+
+jq: base openssl ## Builds jq container
+	docker build --rm ./common/jq --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(JQ_VERSION) -t $(JQ_IMAGE_TAG)
 
 tidy: ## Removes intermediate build containers (aka "dangling")
 	docker rmi -f $(DANGLING_IMAGES)

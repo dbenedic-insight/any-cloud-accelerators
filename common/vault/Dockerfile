@@ -42,11 +42,16 @@ RUN if [ "MODE" = "ui" ]; \
     else make dev; \
     fi
 
+RUN apt-get install -y -qq \
+    jq
+
 FROM ${BASEIMAGE} as final
 
 WORKDIR /usr/local/bin
 COPY --from=build /usr/local/src/vault/bin/vault .
 RUN vault -autocomplete-install
+
+COPY --from=build /usr/bin/jq .
 
 WORKDIR /
 

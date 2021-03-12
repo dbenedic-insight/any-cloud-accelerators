@@ -31,9 +31,6 @@ RUN export AZ_REPO=$(lsb_release -cs) \
     &&  apt-get update -qq && apt-get install -y -qq \
     azure-cli=${APTPKG}~$AZ_REPO
 
-RUN az extension list-available --query "[? to_string(experimental) == 'false' && to_string(preview) == 'false' && !contains(name, 'batch')].name" -o tsv \
-    | xargs -I % az extension add --name % -y
-
 WORKDIR /var/log/az
 ENV AZURE_CLOUD_LOGGING_ENABLE_LOG_FILE=true
 ENV AZURE_CLOUD_LOGGING_LOG_DIR=/var/log/az

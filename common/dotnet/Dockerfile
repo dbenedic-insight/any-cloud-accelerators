@@ -5,8 +5,8 @@ FROM ${OPENSSLIMAGE} AS openssl
 
 FROM ${BASEIMAGE} AS build
 ARG VERSION=
-ARG ARCHIVE=Python-${VERSION}.tgz
-ARG TMPSHA=/tmp/pythonshasum
+ARG ARCHIVE=dotnet-sdk-${VERSION}-linux-x64.tar.gz
+ARG TMPSHA=/tmp/dotnetshasum
 
 RUN apt-get update -qq && apt-get install -y -qq \
   curl \
@@ -18,7 +18,7 @@ RUN apt-get update -qq && apt-get install -y -qq \
 
 # Scrapes python dl page - BRITTLE
 RUN miniversion=$(echo $VERSION | sed -e 's/\.//g') \
-    && url="https://www.python.org/downloads/release/python-${miniversion}/" \
+&& url="https://download.visualstudio.microsoft.com/download/pr/7f736160-9f34-4595-8d72-13630c437aef/b9c4513afb0f8872eb95793c70ac52f6/" \
     && curl $url \
     | sed -n "/<a href=\".*Python-${VERSION}.tgz\">/,/<\/tr>/p" \
     | sed -n "s:.*<td>\(.*\)</td.*:\1:p" \
@@ -38,7 +38,7 @@ COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
 ENV LDFLAGS="-L$OPENSSLPATH/lib"
 ENV CPPFLAGS="-I$OPENSSLPATH/include"
 RUN ./configure --enable-optimizations --with-ensurepip=install --prefix=${PYTHONPATH} --with-openssl=${OPENSSLPATH} --with-pydebug \
-    && make build_all\
+    && make \
     && make install
 
 RUN pip3 install --upgrade pip

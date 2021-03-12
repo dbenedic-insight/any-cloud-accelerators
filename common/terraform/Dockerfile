@@ -18,11 +18,13 @@ RUN if [ "$VERSION" = "latest" ]; \
 
 WORKDIR /usr/local/src/terraform
 RUN go install .
+RUN go install ./tools/terraform-bundle
 
 FROM ${BASEIMAGE} AS final
 
 WORKDIR /usr/local/bin
 COPY --from=build ${GOPATH}/bin/terraform .
+COPY --from=build ${GOPATH}/bin/terraform-bundle .
 
 WORKDIR /etc/ssl/certs
 COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .

@@ -1,7 +1,4 @@
-ARG VERSION=latest
-ARG JQIMAGE=
-
-FROM ${JQIMAGE} AS jq
+ARG VERSION=
 
 FROM ubuntu:${VERSION}
 LABEL description = "This image is the shared base image for all other images in this repo. Please refer to README for usage"
@@ -14,6 +11,7 @@ ARG PYTHONPATH=/usr/local/src/python
 ARG PYTHONMODULEPATH=/usr/local/src/python-modules
 ARG OPENSSLPATH=/usr/local/src/openssl
 ARG JQPATH=/usr/local/bin/jq
+ARG DOTNETPATH=/usr/local/bin/dotnet
 
 WORKDIR ${GOPATH}
 ENV GOPATH="${GOPATH}"
@@ -32,9 +30,11 @@ WORKDIR ${OPENSSLPATH}
 ENV OPENSSLPATH=${OPENSSLPATH}
 ENV PATH="${OPENSSLPATH}/bin:${PATH}"
 ENV LD_LIBRARY_PATH=${OPENSSLPATH}/lib
+WORKDIR ${DOTNETPATH}
+ENV DOTNET_ROOT=${DOTNETPATH}
+ENV PATH="${DOTNET_ROOT}:${PATH}"
+ENV JQPATH=${JQPATH}
 RUN echo "export PATH='${PATH}'" >> ~/.profile
-
-COPY --from=jq ${JQPATH} ${JQPATH}
 
 WORKDIR /
 ENV DEBIAN_FRONTEND=noninteractive

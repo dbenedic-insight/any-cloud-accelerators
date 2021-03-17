@@ -47,8 +47,12 @@ GCP_BASE_IMAGE          = ${IMAGE_PREFIX}-gcp-base
 GCP_BASE_VERSION        = 1.0.0
 GCP_BASE_IMAGE_TAG      = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
 GCP_CLI_IMAGE           = $(IMAGE_PREFIX)-gcp-sdk
-GCP_CLI_VERSION        ?= 320.0.0
+GCP_CLI_VERSION        ?= 332.0.0
 GCP_CLI_IMAGE_TAG       = $(GCP_CLI_IMAGE):$(GCP_CLI_VERSION)
+GCP_TF_IMAGE            = $(IMAGE_PREFIX)-gcp-tf
+GCP_TF_IMAGE_TAG        = $(GCP_TF_IMAGE):$(TERRAFORM_VERSION)
+GCP_TF_DEV_IMAGE        = $(GCP_TF_IMAGE)-dev
+GCP_TF_DEV_IMAGE_TAG    = $(GCP_TF_DEV_IMAGE):$(TERRAFORM_VERSION)
 AWS_CLI_IMAGE           = $(IMAGE_PREFIX)-aws-cli
 AWS_CLI_VERSION        ?= 1.18.197
 AWS_CLI_IMAGE_TAG       = $(AWS_CLI_IMAGE):$(AWS_CLI_VERSION)
@@ -119,6 +123,9 @@ gcp-base: base ## Builds a common intermediate base container for GCP
 
 gcp-sdk: gcp-base python openssl ## Builds the Google Cloud Platform (GCP) SDK in a container
 	docker build --rm ./gcp/sdk --build-arg BASEIMAGE=$(GCP_BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(GCP_CLI_VERSION) -t $(GCP_CLI_IMAGE_TAG)
+
+gcp-tf-dev: gcp-sdk terraform jq ## Builds an GCP-specific terraform container for terraform development
+	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(GCP_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(GCP_TF_DEV_IMAGE_TAG)
 
 gcp: base gcp-sdk
 

@@ -6,11 +6,11 @@ BASE_IMAGE              = $(IMAGE_PREFIX)-base
 BASE_VERSION           ?= 20.04
 BASE_IMAGE_TAG          = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE             = $(IMAGE_PREFIX)-vault
-VAULT_VERSION          ?= 1.6.1
+VAULT_VERSION          ?= 1.7.0
 VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
-TERRAFORM_VERSION      ?= 0.14.8
+TERRAFORM_VERSION      ?= 0.14.9
 TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
 PACKER_VERSION         ?= 1.6.5
@@ -88,8 +88,8 @@ node: base ## Builds a nodejs build container
 python: base openssl ## Builds a python build container
 	docker build --rm ./common/python --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PYTHON_VERSION) -t $(PYTHON_IMAGE_TAG)
 
-vault: base go node ## Builds vault container
-	docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
+vault: base go node jq ## Builds vault container
+	docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
 
 terraform: base go openssl ## Builds terraform container
 	docker build --rm ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)

@@ -1,9 +1,11 @@
 ARG BASEIMAGE=
 ARG GOIMAGE
 ARG NODEIMAGE
+ARG JQIMAGE
 
 FROM ${GOIMAGE} AS go
 FROM ${NODEIMAGE} AS node
+FROM ${JQIMAGE} AS jq
 
 FROM ${BASEIMAGE} AS build
 ARG VERSION=latest
@@ -42,16 +44,13 @@ RUN if [ "MODE" = "ui" ]; \
     else make dev; \
     fi
 
-RUN apt-get install -y -qq \
-    jq
-
 FROM ${BASEIMAGE} as final
 
 WORKDIR /usr/local/bin
 COPY --from=build /usr/local/src/vault/bin/vault .
 RUN vault -autocomplete-install
 
-COPY --from=build /usr/bin/jq .
+COPY --from=jq /usr/local/bin/jq .
 
 WORKDIR /
 

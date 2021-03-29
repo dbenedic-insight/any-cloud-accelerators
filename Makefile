@@ -8,6 +8,7 @@ BASE_IMAGE_TAG          = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE             = $(IMAGE_PREFIX)-vault
 VAULT_VERSION          ?= 1.7.0
 VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
+VAULT_DEV_IMAGE_TAG			= $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
 TERRAFORM_VERSION      ?= 0.14.9
@@ -90,6 +91,9 @@ python: base openssl ## Builds a python build container
 
 vault: base go node jq ## Builds vault container
 	docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
+
+vault-dev: vault terraform ## Builds a vault dev environment container
+	docker build --rm ./common/vault/dev --build-arg BASEIMAGE=$(VAULT_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) -t $(VAULT_DEV_IMAGE_TAG)
 
 terraform: base go openssl ## Builds terraform container
 	docker build --rm ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)

@@ -1,5 +1,8 @@
 ARG BASEIMAGE=
 ARG GOIMAGE=
+ARG OPENSSLIMAGE=
+
+FROM ${OPENSSLIMAGE} AS openssl
 
 FROM ${GOIMAGE} AS build
 ARG VERSION=latest
@@ -9,11 +12,23 @@ RUN apt-get update -qq && apt-get install -y \
     git \
     build-essential
 
+WORKDIR /etc/ssl/certs
+COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
+
 WORKDIR ${GOPATH}
 RUN if [ "$VERSION" = "latest" ]; \
     then go get ${MODULE}; \
     else go get ${MODULE}@v${VERSION}; \
     fi
-RUN make help
+
+FROM ${BASEIMAGE} AS final
+
+WORKDIR /usr/local/bin
+COPY --from=build ${GOPATH}/bin/packer .
+
+WORKDIR /etc/ssl/certs
+COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
+
+WORKDIR /
 
 ENTRYPOINT ["/bin/bash"]

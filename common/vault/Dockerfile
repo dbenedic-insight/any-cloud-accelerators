@@ -2,10 +2,12 @@ ARG BASEIMAGE=
 ARG GOIMAGE
 ARG NODEIMAGE
 ARG JQIMAGE
+ARG OPENSSLIMAGE=
 
 FROM ${GOIMAGE} AS go
 FROM ${NODEIMAGE} AS node
 FROM ${JQIMAGE} AS jq
+FROM ${OPENSSLIMAGE} AS openssl
 
 FROM ${BASEIMAGE} AS build
 ARG VERSION=latest
@@ -51,6 +53,9 @@ COPY --from=build /usr/local/src/vault/bin/vault .
 RUN vault -autocomplete-install
 
 COPY --from=jq /usr/local/bin/jq .
+
+WORKDIR /etc/ssl/certs
+COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 
 WORKDIR /
 

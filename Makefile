@@ -14,10 +14,10 @@ TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
 TERRAFORM_VERSION      ?= 0.14.9
 TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
-PACKER_VERSION         ?= 1.6.5
+PACKER_VERSION         ?= 1.7.0
 PACKER_IMAGE_TAG        = $(PACKER_IMAGE):$(PACKER_VERSION)
 GO_IMAGE                = $(IMAGE_PREFIX)-go
-GO_VERSION             ?= 1.15.6
+GO_VERSION             ?= 1.16.2
 GO_IMAGE_TAG            = $(GO_IMAGE):$(GO_VERSION)
 TERRAFORMER_IMAGE       = $(IMAGE_PREFIX)-terraformer
 TERRAFORMER_VERSION    ?= 0.8.8
@@ -26,7 +26,7 @@ NODE_IMAGE              = $(IMAGE_PREFIX)-node
 NODE_VERSION           ?= 14.15.1
 NODE_IMAGE_TAG          = $(NODE_IMAGE):$(NODE_VERSION)
 PYTHON_IMAGE            = $(IMAGE_PREFIX)-python
-PYTHON_VERSION         ?= 3.9.0
+PYTHON_VERSION         ?= 3.9.2
 PYTHON_IMAGE_TAG        = $(PYTHON_IMAGE):$(PYTHON_VERSION)
 OPENSSL_IMAGE           = $(IMAGE_PREFIX)-openssl
 OPENSSL_VERSION        ?= 1.1.1i
@@ -48,7 +48,7 @@ GCP_BASE_IMAGE          = ${IMAGE_PREFIX}-gcp-base
 GCP_BASE_VERSION        = 1.0.0
 GCP_BASE_IMAGE_TAG      = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
 GCP_CLI_IMAGE           = $(IMAGE_PREFIX)-gcp-sdk
-GCP_CLI_VERSION        ?= 332.0.0
+GCP_CLI_VERSION        ?= latest
 GCP_CLI_IMAGE_TAG       = $(GCP_CLI_IMAGE):$(GCP_CLI_VERSION)
 GCP_TF_IMAGE            = $(IMAGE_PREFIX)-gcp-tf
 GCP_TF_IMAGE_TAG        = $(GCP_TF_IMAGE):$(TERRAFORM_VERSION)
@@ -99,7 +99,7 @@ terraform: base go openssl ## Builds terraform container
 	docker build --rm ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)
 
 packer: base go ## Builds packer container
-	docker build --rm ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
+	docker build --rm ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
 
 docker: ## Prints docker version
 	docker version -f "{{.Client.Platform.Name}} v{{.Client.Version}}"
@@ -117,8 +117,8 @@ ibm: ibm-tf ibm-cli ## Builds all IBM Cloud accelerators in containers
 az-cli: base openssl python jq ## Builds an azcli container
 	docker build --rm ./azure/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AZURE_CLI_VERSION) -t $(AZURE_CLI_IMAGE_TAG)
 
-az-tf-dev: az-cli terraform jq ## Builds an Azure-specific terraform container
-	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(AZURE_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(AZURE_TF_DEV_IMAGE_TAG)
+az-tf-dev: az-cli terraform packer jq ## Builds an Azure-specific terraform container
+	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(AZURE_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(AZURE_TF_DEV_IMAGE_TAG)
 
 azure: base az-cli ## Builds all Azure cloud accelerators in containers
 
@@ -128,8 +128,8 @@ gcp-base: base ## Builds a common intermediate base container for GCP
 gcp-sdk: gcp-base python openssl ## Builds the Google Cloud Platform (GCP) SDK in a container
 	docker build --rm ./gcp/sdk --build-arg BASEIMAGE=$(GCP_BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(GCP_CLI_VERSION) -t $(GCP_CLI_IMAGE_TAG)
 
-gcp-tf-dev: gcp-sdk terraform jq ## Builds an GCP-specific terraform container for terraform development
-	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(GCP_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(GCP_TF_DEV_IMAGE_TAG)
+gcp-tf-dev: gcp-sdk terraform packer jq ## Builds an GCP-specific terraform container for terraform development
+	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(GCP_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(GCP_TF_DEV_IMAGE_TAG)
 
 gcp: base gcp-sdk
 

@@ -14,15 +14,20 @@ RUN apt-get update -qq && apt-get install -y -qq \
     gnupg \
     libsqlite3-0
 
-COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
+WORKDIR /etc/ssl/certs
+COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 COPY --from=python ${PYTHONPATH} ${PYTHONPATH}
 
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" \
     | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     | curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
     | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - \
-    && apt-get update -qq && apt-get install -y \
-    google-cloud-sdk=${APTPKG}
+    && apt-get update -qq
+
+RUN if [ "$VERSION" = "latest" ]; \
+    then apt-get install -y google-cloud-sdk; \
+    else apt-get install -y googld-cloud-sdk=${APTPK}; \
+    fi
 
 ENV PYTHONWARNINGS="ignore"
 

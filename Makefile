@@ -89,8 +89,8 @@ node: base ## Builds a nodejs build container
 python: base openssl ## Builds a python build container
 	docker build --rm ./common/python --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PYTHON_VERSION) -t $(PYTHON_IMAGE_TAG)
 
-vault: base go node jq ## Builds vault container
-	docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
+vault: base go node jq openssl ## Builds vault container
+	docker build --rm ./common/vault --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg NODEIMAGE=$(NODE_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(VAULT_VERSION) --build-arg MODE=$(VAULT_MODE) -t $(VAULT_IMAGE_TAG)
 
 vault-dev: vault terraform ## Builds a vault dev environment container
 	docker build --rm ./common/vault/dev --build-arg BASEIMAGE=$(VAULT_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) -t $(VAULT_DEV_IMAGE_TAG)

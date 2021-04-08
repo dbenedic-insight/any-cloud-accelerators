@@ -10,7 +10,10 @@ ARG VERSION=latest
 COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
 
 RUN pip3 install --upgrade pip
-RUN pip3 install ansible==${VERSION}
+RUN if [ "$VERSION" = "latest" ]; \
+      then pip3 install ansible; \
+      else pip3 install ansible==${VERSION}; \
+    fi
 
 WORKDIR /
 

@@ -1,6 +1,6 @@
 SHELL                   = /bin/sh
 IMAGE_PREFIX           ?= aca
-REPO_IMAGES            := $(shell docker images -q '$(PREFIX)*' | uniq)
+REPO_IMAGES            := $(shell docker images -q '$(IMAGE_PREFIX)*' | uniq)
 DANGLING_IMAGES        := $(shell docker images --filter "dangling=true" -q)
 BASE_IMAGE              = $(IMAGE_PREFIX)-base
 BASE_VERSION           ?= 20.04

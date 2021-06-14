@@ -20,6 +20,11 @@ COPY --from=jq /usr/local/bin/jq .
 
 RUN az extension add --name azure-devops
 
+WORKDIR /root/.azure/azuredevops
+ADD azuredevops/config .
+
+ENV AZURE_DEVOPS_EXT_PAT=''
+
 WORKDIR /
 
 ENTRYPOINT ["/bin/bash"]

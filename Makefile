@@ -6,46 +6,46 @@ BASE_IMAGE              = $(IMAGE_PREFIX)-base
 BASE_VERSION           ?= 20.04
 BASE_IMAGE_TAG          = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE             = $(IMAGE_PREFIX)-vault
-VAULT_VERSION          ?= 1.7.2
+VAULT_VERSION          ?= 1.8.1
 VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_DEV_IMAGE_TAG			= $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
-TERRAFORM_VERSION      ?= 1.0.2
+TERRAFORM_VERSION      ?= 1.0.4
 TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
-PACKER_VERSION         ?= 1.7.2
+PACKER_VERSION         ?= latest
 PACKER_IMAGE_TAG        = $(PACKER_IMAGE):$(PACKER_VERSION)
 GO_IMAGE                = $(IMAGE_PREFIX)-go
-GO_VERSION             ?= 1.16.2
+GO_VERSION             ?= 1.16.7
 GO_IMAGE_TAG            = $(GO_IMAGE):$(GO_VERSION)
 TERRAFORMER_IMAGE       = $(IMAGE_PREFIX)-terraformer
-TERRAFORMER_VERSION    ?= 0.8.8
+TERRAFORMER_VERSION    ?= latest
 TERRAFORMER_IMAGE_TAG   = $(TERRAFORMER_IMAGE):$(TERRAFORMER_VERSION)
 NODE_IMAGE              = $(IMAGE_PREFIX)-node
-NODE_VERSION           ?= 14.15.1
+NODE_VERSION           ?= 14.17.5
 NODE_IMAGE_TAG          = $(NODE_IMAGE):$(NODE_VERSION)
 PYTHON_IMAGE            = $(IMAGE_PREFIX)-python
-PYTHON_VERSION         ?= 3.9.2
+PYTHON_VERSION         ?= 3.9.6
 PYTHON_IMAGE_TAG        = $(PYTHON_IMAGE):$(PYTHON_VERSION)
 OPENSSL_IMAGE           = $(IMAGE_PREFIX)-openssl
-OPENSSL_VERSION        ?= 1.1.1i
+OPENSSL_VERSION        ?= 1.1.1k
 OPENSSL_IMAGE_TAG       = $(OPENSSL_IMAGE):$(OPENSSL_VERSION)
 IBM_CLI_IMAGE           = $(IMAGE_PREFIX)-ibm-cli
-IBM_CLI_VERSION        ?= 1.2.3
+IBM_CLI_VERSION        ?= 2.0.2
 IBM_CLI_IMAGE_TAG       = $(IBM_CLI_IMAGE):$(IBM_CLI_VERSION)
 IBM_TF_IMAGE            = $(IMAGE_PREFIX)-ibm-tf
-IBM_TF_VERSION         ?= 1.17.0
+IBM_TF_VERSION         ?= latest
 IBM_TF_IMAGE_TAG        = $(IBM_TF_IMAGE):$(IBM_TF_VERSION)
 AZURE_CLI_IMAGE         = $(IMAGE_PREFIX)-az-cli
-AZURE_CLI_VERSION      ?= 2.20.0
+AZURE_CLI_VERSION      ?= 2.27.1
 AZURE_CLI_IMAGE_TAG     = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
 AZURE_TF_IMAGE          = $(IMAGE_PREFIX)-az-tf
 AZURE_TF_IMAGE_TAG      = $(AZURE_TF_IMAGE):$(TERRAFORM_VERSION)
 AZURE_TF_DEV_IMAGE      = $(AZURE_TF_IMAGE)-dev
 AZURE_TF_DEV_IMAGE_TAG  = $(AZURE_TF_DEV_IMAGE):$(TERRAFORM_VERSION)
 GCP_BASE_IMAGE          = ${IMAGE_PREFIX}-gcp-base
-GCP_BASE_VERSION        = 1.0.0
+GCP_BASE_VERSION        = latest
 GCP_BASE_IMAGE_TAG      = ${GCP_BASE_IMAGE}:${GCP_BASE_VERSION}
 GCP_CLI_IMAGE           = $(IMAGE_PREFIX)-gcp-sdk
 GCP_CLI_VERSION        ?= latest
@@ -55,13 +55,17 @@ GCP_TF_IMAGE_TAG        = $(GCP_TF_IMAGE):$(TERRAFORM_VERSION)
 GCP_TF_DEV_IMAGE        = $(GCP_TF_IMAGE)-dev
 GCP_TF_DEV_IMAGE_TAG    = $(GCP_TF_DEV_IMAGE):$(TERRAFORM_VERSION)
 AWS_CLI_IMAGE           = $(IMAGE_PREFIX)-aws-cli
-AWS_CLI_VERSION        ?= 1.18.197
+AWS_CLI_VERSION        ?= latest
 AWS_CLI_IMAGE_TAG       = $(AWS_CLI_IMAGE):$(AWS_CLI_VERSION)
+AWS_TF_IMAGE         		= $(IMAGE_PREFIX)-aws-tf
+AWS_TF_IMAGE_TAG      	= $(AWS_TF_IMAGE):$(TERRAFORM_VERSION)
+AWS_TF_DEV_IMAGE      	= $(AWS_TF_IMAGE)-dev
+AWS_TF_DEV_IMAGE_TAG  	= $(AWS_TF_DEV_IMAGE):$(TERRAFORM_VERSION)
 ANSIBLE_IMAGE           = $(IMAGE_PREFIX)-ansible
-ANSIBLE_VERSION        ?= 2.10.7
+ANSIBLE_VERSION        ?= latest
 ANSIBLE_IMAGE_TAG       = $(ANSIBLE_IMAGE):$(ANSIBLE_VERSION)
 JQ_IMAGE                = $(IMAGE_PREFIX)-jq
-JQ_VERSION             ?= 1.6
+JQ_VERSION             ?= latest
 JQ_IMAGE_TAG            = $(JQ_IMAGE):$(JQ_VERSION)
 
 # HELP
@@ -120,7 +124,7 @@ az-cli: base openssl python jq ## Builds an azcli container
 az-tf-dev: az-cli terraform packer jq ## Builds an Azure-specific terraform container
 	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(AZURE_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(AZURE_TF_DEV_IMAGE_TAG)
 
-azure: base az-cli ## Builds all Azure cloud accelerators in containers
+azure: base az-cli az-tf-dev ## Builds all Azure cloud accelerators in containers
 
 gcp-base: base ## Builds a common intermediate base container for GCP
 	docker build --rm ./gcp/base --build-arg BASEIMAGE=${BASE_IMAGE_TAG} --build-arg VERSION=$(GCP_BASE_VERSION) -t $(GCP_BASE_IMAGE_TAG)
@@ -136,7 +140,10 @@ gcp: base gcp-sdk
 aws-cli: base openssl python ## Builds an azcli container
 	docker build --rm ./aws/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AWS_CLI_VERSION) -t $(AWS_CLI_IMAGE_TAG)
 
-aws: aws-cli
+aws-tf-dev: aws-cli terraform packer jq ## Builds an AWS-specific terraform container
+	docker build --rm ./aws/terraform-dev --build-arg BASEIMAGE=$(AWS_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(AZURE_TF_DEV_IMAGE_TAG)
+
+aws: aws-cli aws-tf-dev
 
 clouds: aws azure gcp ibm ## Builds all cloud accelerators in containers
 

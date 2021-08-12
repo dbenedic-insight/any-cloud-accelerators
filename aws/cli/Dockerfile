@@ -32,7 +32,9 @@ RUN python -m pip install -r requirements.txt \
     && python -m pip install -e .
 
 WORKDIR /
-ENV PYTHONWARNINGS="ignore::DeprecationWarning"
+# See: https://docs.python.org/3/library/warnings.html
+ENV PYTHONWARNINGS="ignore::Warning"
+
 ENV AWS_ACCESS_KEY_ID=
 ENV AWS_SECRET_ACCESS_KEY=
 ENTRYPOINT ["/bin/bash"]

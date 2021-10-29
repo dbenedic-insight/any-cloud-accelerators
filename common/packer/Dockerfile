@@ -17,8 +17,8 @@ COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 
 WORKDIR ${GOPATH}
 RUN if [ "$VERSION" = "latest" ]; \
-    then go get ${MODULE}; \
-    else go get ${MODULE}@v${VERSION}; \
+    then go install ${MODULE}@latest; \
+    else go install ${MODULE}@v${VERSION}; \
     fi
 
 FROM ${BASEIMAGE} AS final

@@ -17,9 +17,12 @@ COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 
 WORKDIR ${GOPATH}
 RUN if [ "$VERSION" = "latest" ]; \
-    then go install ${MODULE}@latest; \
-    else go install ${MODULE}@v${VERSION}; \
+    then git clone https://github.com/hashicorp/packer.git --branch master --single-branch; \
+    else git clone https://github.com/hashicorp/packer.git --branch v${VERSION} --single-branch; \
     fi
+
+WORKDIR ${GOPATH}/packer
+RUN go install
 
 FROM ${BASEIMAGE} AS final
 

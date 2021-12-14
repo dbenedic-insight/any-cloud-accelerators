@@ -22,7 +22,7 @@ RUN if [ "$VERSION" = "latest" ]; \
     fi
 
 WORKDIR ${GOPATH}/packer
-RUN go install
+RUN go install # Make sure your container has memory headroom to build this! > 4GB
 
 FROM ${BASEIMAGE} AS final
 

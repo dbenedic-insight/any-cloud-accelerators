@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y -qq \
   git
 
 # Scrapes golang dl page - BRITTLE
-RUN curl https://golang.org/dl/ \
+RUN curl https://go.dev/dl/ \
     | sed -n "/<a class=\"download\" href=\".*${ARCHIVE}\">/,/<\/tr>/p" \
     | sed -n "s:.*<tt>\(.*\)</tt.*:\1:p" \
     > $TMPSHA

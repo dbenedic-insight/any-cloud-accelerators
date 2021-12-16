@@ -14,14 +14,13 @@ RUN apt-get update -qq && apt-get install -y -qq \
 COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
 
 WORKDIR /usr/local/src
-RUN curl -L -O https://public.dhe.ibm.com/cloud/bluemix/cli/bluemix-cli/${VERSION}/binaries/${ARCHIVE}
+RUN curl -L -O https://download.clis.cloud.ibm.com/ibm-cloud-cli/${VERSION}/binaries/${ARCHIVE}
 RUN mkdir ${BINPATH} \
-    && tar xf ${ARCHIVE} -C ${BINPATH} --strip-components 1
+    && tar xzf ${ARCHIVE} -C ${BINPATH} --strip-components 1
 
 WORKDIR ${BINPATH}
 RUN curl -O https://public.dhe.ibm.com/cloud/bluemix/cli/bluemix-cli/keys/ibmcloud-cli.pub | tee > ibmcloud-cli.pub
 RUN openssl dgst -sha256 -verify ibmcloud-cli.pub -signature ibmcloud.sig ibmcloud
-RUN openssl dgst -sha256 -verify ibmcloud-cli.pub -signature ibmcloud-analytics.sig ibmcloud-analytics
 
 RUN ln -s ${BINPATH}/ibmcloud /usr/local/bin/ibmcloud \
     && ln -s ${BINPATH}/ibmcloud-analytics /usr/local/bin/ibmcloud-analytics \

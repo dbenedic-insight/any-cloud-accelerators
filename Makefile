@@ -1,14 +1,14 @@
 SHELL                   = /bin/sh
 IMAGE_PREFIX           ?= aca
 REPO_IMAGES            := $(shell docker images -q '$(PREFIX)*' | uniq)
-DANGLING_IMAGES        := $(shell docker images --filter "dangling=true" -q)
+DANGLING_IMAGES        := $(shell docker images --filter "dangling = true" -q)
 BASE_IMAGE              = $(IMAGE_PREFIX)-base
 BASE_VERSION           ?= 20.04
 BASE_IMAGE_TAG          = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE             = $(IMAGE_PREFIX)-vault
 VAULT_VERSION          ?= 1.8.5
 VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
-VAULT_DEV_IMAGE_TAG			= $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
+VAULT_DEV_IMAGE_TAG     = $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
 TERRAFORM_VERSION      ?= 1.1.7
@@ -60,10 +60,10 @@ GCP_TF_DEV_IMAGE_TAG    = $(GCP_TF_DEV_IMAGE):$(TERRAFORM_VERSION)
 AWS_CLI_IMAGE           = $(IMAGE_PREFIX)-aws-cli
 AWS_CLI_VERSION        ?= latest
 AWS_CLI_IMAGE_TAG       = $(AWS_CLI_IMAGE):$(AWS_CLI_VERSION)
-AWS_TF_IMAGE         		= $(IMAGE_PREFIX)-aws-tf
-AWS_TF_IMAGE_TAG      	= $(AWS_TF_IMAGE):$(TERRAFORM_VERSION)
-AWS_TF_DEV_IMAGE      	= $(AWS_TF_IMAGE)-dev
-AWS_TF_DEV_IMAGE_TAG  	= $(AWS_TF_DEV_IMAGE):$(TERRAFORM_VERSION)
+AWS_TF_IMAGE            = $(IMAGE_PREFIX)-aws-tf
+AWS_TF_IMAGE_TAG        = $(AWS_TF_IMAGE):$(TERRAFORM_VERSION)
+AWS_TF_DEV_IMAGE        = $(AWS_TF_IMAGE)-dev
+AWS_TF_DEV_IMAGE_TAG    = $(AWS_TF_DEV_IMAGE):$(TERRAFORM_VERSION)
 ANSIBLE_IMAGE           = $(IMAGE_PREFIX)-ansible
 ANSIBLE_VERSION        ?= latest
 ANSIBLE_IMAGE_TAG       = $(ANSIBLE_IMAGE):$(ANSIBLE_VERSION)

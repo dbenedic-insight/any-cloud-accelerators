@@ -24,9 +24,23 @@ Will build `aca-terraform:0.13.4`.
 
 This is powerful when combined with other tools such as [direnv](https://direnv.net) which allow you to export environment variables per directory. This allows you to have customized accelerators per project!
 
-Typically I will clone this repo only once, then symlink it into each project directory where I'm leveraging direnv. That way I can simply `make <accelerator>` from within that project directory with the environment variable overrides I want for that project.
+Typically I will clone this repo only once, then symlink it into each project directory where I'm leveraging direnv. That way I can simply `make <accelerator>` from within that project directory with the environment variable overrides I want for that project, e.g. from a project directory:
+```
+ln -s ~/Dev/github/dbenedic-insight/any-cloud-accelerators/Makefile .
+
+ln -s ~/Dev/github/dbenedic-insight/any-cloud-accelerators/common .
+
+ln -s ~/Dev/github/dbenedic-insight/any-cloud-accelerators/azure .
+
+make az-tf-dev
+```
 
 **NOTE** I recommend overriding the `IMAGE_PREFIX` variable for each project when using direnv. This makes it easier to figure out which containers belong to which project when inspecting with `docker images`.
+
+This also makes it easy to run your containers using ENV VARS, e.g.:
+```
+docker run --rm -it -v ~/.azure:/root/.azure -v ~/.terraform.d:/root/.terraform.d "${IMAGE_PREFIX}-az-tf-dev:${TERRAFORM_VERSION}"
+```
 
 # Grokking the docker image hierarchy
 In this repo, all the Dockerfiles are built off of the image created by `common/base/Dockerfile`. This is where you will find the ENV VAR paths for things that are shared amongst multiple Dockerfiles (python, openssl, etc).

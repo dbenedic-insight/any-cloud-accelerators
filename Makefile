@@ -11,7 +11,7 @@ VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_DEV_IMAGE_TAG			= $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
-TERRAFORM_VERSION      ?= 1.0.11
+TERRAFORM_VERSION      ?= 1.1.7
 TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
 PACKER_VERSION         ?= latest
@@ -19,6 +19,9 @@ PACKER_IMAGE_TAG        = $(PACKER_IMAGE):$(PACKER_VERSION)
 GO_IMAGE                = $(IMAGE_PREFIX)-go
 GO_VERSION             ?= 1.17.5
 GO_IMAGE_TAG            = $(GO_IMAGE):$(GO_VERSION)
+RUBY_IMAGE              = $(IMAGE_PREFIX)-ruby
+RUBY_VERSION           ?= 3.1.1
+RUBY_IMAGE_TAG          = $(RUBY_IMAGE):$(RUBY_VERSION)
 TERRAFORMER_IMAGE       = $(IMAGE_PREFIX)-terraformer
 TERRAFORMER_VERSION    ?= latest
 TERRAFORMER_IMAGE_TAG   = $(TERRAFORMER_IMAGE):$(TERRAFORMER_VERSION)
@@ -29,7 +32,7 @@ PYTHON_IMAGE            = $(IMAGE_PREFIX)-python
 PYTHON_VERSION         ?= 3.10.0
 PYTHON_IMAGE_TAG        = $(PYTHON_IMAGE):$(PYTHON_VERSION)
 OPENSSL_IMAGE           = $(IMAGE_PREFIX)-openssl
-OPENSSL_VERSION        ?= 1.1.1l
+OPENSSL_VERSION        ?= 1.1.1n
 OPENSSL_IMAGE_TAG       = $(OPENSSL_IMAGE):$(OPENSSL_VERSION)
 IBM_CLI_IMAGE           = $(IMAGE_PREFIX)-ibm-cli
 IBM_CLI_VERSION        ?= 2.3.0
@@ -78,6 +81,9 @@ help: ## This help
 
 .DEFAULT_GOAL := help
 
+docker: ## Prints docker version
+	docker version
+
 base: docker ## Builds base container
 	docker build --rm ./common/base --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg VERSION=$(BASE_VERSION) -t $(BASE_IMAGE_TAG)
 
@@ -86,6 +92,9 @@ openssl: base ## Builds an openssl container
 
 go: base openssl ## Builds a go build container
 	docker build --rm ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) -t $(GO_IMAGE_TAG)
+
+ruby: base openssl ## Builds a ruby container
+	docker build --rm ./common/ruby --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(RUBY_VERSION) -t $(RUBY_IMAGE_TAG)
 
 node: base ## Builds a nodejs build container
 	docker build --rm ./common/node --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(NODE_VERSION) -t $(NODE_IMAGE_TAG)
@@ -104,9 +113,6 @@ terraform: base go openssl ## Builds terraform container
 
 packer: base go ## Builds packer container
 	docker build --rm ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
-
-docker: ## Prints docker version
-	docker version -f "{{.Client.Platform.Name}} v{{.Client.Version}}"
 
 common: terraform vault ## Builds all common images in toolchain
 

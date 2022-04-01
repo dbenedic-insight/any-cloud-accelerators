@@ -12,6 +12,7 @@ ARG PYTHONMODULEPATH=/usr/local/src/python-modules
 ARG OPENSSLPATH=/usr/local/src/openssl
 ARG JQPATH=/usr/local/bin/jq
 ARG DOTNETPATH=/usr/local/bin/dotnet
+ARG RUBYPATH=/usr/local/src/ruby
 
 WORKDIR ${GOPATH}
 ENV GOPATH="${GOPATH}"
@@ -34,6 +35,9 @@ WORKDIR ${DOTNETPATH}
 ENV DOTNET_ROOT=${DOTNETPATH}
 ENV PATH="${DOTNET_ROOT}:${PATH}"
 ENV JQPATH=${JQPATH}
+WORKDIR ${RUBYPATH}
+ENV RUBYPATH=${RUBYPATH}
+ENV PATH="${RUBYPATH}/bin:${PATH}"
 RUN echo "export PATH='${PATH}'" >> ~/.profile
 
 WORKDIR /

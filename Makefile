@@ -41,7 +41,7 @@ IBM_TF_IMAGE            = $(IMAGE_PREFIX)-ibm-tf
 IBM_TF_VERSION         ?= latest
 IBM_TF_IMAGE_TAG        = $(IBM_TF_IMAGE):$(IBM_TF_VERSION)
 AZURE_CLI_IMAGE         = $(IMAGE_PREFIX)-az-cli
-AZURE_CLI_VERSION      ?= 2.29.0
+AZURE_CLI_VERSION      ?= 2.35.0
 AZURE_CLI_IMAGE_TAG     = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
 AZURE_TF_IMAGE          = $(IMAGE_PREFIX)-az-tf
 AZURE_TF_IMAGE_TAG      = $(AZURE_TF_IMAGE):$(TERRAFORM_VERSION)
@@ -70,6 +70,10 @@ ANSIBLE_IMAGE_TAG       = $(ANSIBLE_IMAGE):$(ANSIBLE_VERSION)
 JQ_IMAGE                = $(IMAGE_PREFIX)-jq
 JQ_VERSION             ?= latest
 JQ_IMAGE_TAG            = $(JQ_IMAGE):$(JQ_VERSION)
+AZAPI_IMAGE             = $(IMAGE_PREFIX)-azapi
+AZAPI_VERSION          ?= latest
+AZAPI_IMAGE_TAG         = $(AZAPI_IMAGE):$(AZAPI_VERSION)
+
 
 # HELP
 # This will output the help for each task
@@ -127,8 +131,11 @@ ibm: ibm-tf ibm-cli ## Builds all IBM Cloud accelerators in containers
 az-cli: base openssl python jq ## Builds an azcli container
 	docker build --rm ./azure/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AZURE_CLI_VERSION) -t $(AZURE_CLI_IMAGE_TAG)
 
-az-tf-dev: az-cli terraform packer jq ## Builds an Azure-specific terraform container
-	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(AZURE_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(AZURE_TF_DEV_IMAGE_TAG)
+azapi: base openssl go ## Builds an azapi Terraform provider
+	docker build --rm ./azure/providers/azapi --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VERSION=$(AZAPI_VERSION) -t $(AZAPI_IMAGE_TAG)
+
+az-tf-dev: az-cli terraform packer jq azapi ## Builds an Azure-specific terraform container
+	docker build --rm ./azure/terraform-dev --build-arg BASEIMAGE=$(AZURE_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg AZAPIIMAGE=$(AZAPI_IMAGE_TAG) -t $(AZURE_TF_DEV_IMAGE_TAG)
 
 azure: base az-cli az-tf-dev ## Builds all Azure cloud accelerators in containers
 

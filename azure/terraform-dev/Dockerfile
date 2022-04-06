@@ -2,10 +2,12 @@ ARG BASEIMAGE=
 ARG TFIMAGE=
 ARG PACKERIMAGE=
 ARG JQIMAGE=
+ARG AZAPIIMAGE=
 
 FROM ${TFIMAGE} AS tf
 FROM ${PACKERIMAGE} AS packer
 FROM ${JQIMAGE} AS jq
+FROM ${AZAPIIMAGE} AS azapi
 
 FROM ${BASEIMAGE} AS build
 
@@ -24,6 +26,9 @@ WORKDIR /root/.azure/azuredevops
 ADD azuredevops/config .
 
 ENV AZURE_DEVOPS_EXT_PAT=''
+
+WORKDIR /usr/local/share/terraform/plugins
+COPY --from=azapi /usr/local/share/terraform/plugins .
 
 WORKDIR /
 

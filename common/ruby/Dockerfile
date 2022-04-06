@@ -12,13 +12,13 @@ COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 
 # ruby needs ruby to compile! derp.
 RUN apt-get update && apt-get install -y -qq \
-  git \
-  build-essential \
-  autoconf \
-  ruby \
-  flex \
-  bison \
-  curl
+    git \
+    build-essential \
+    autoconf \
+    ruby \
+    flex \
+    bison \
+    curl
 
 WORKDIR ${BUILDPATH}
 RUN if [ "$VERSION" = "latest" ]; \

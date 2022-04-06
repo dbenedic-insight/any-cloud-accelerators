@@ -17,7 +17,7 @@ COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
 
 WORKDIR ${GOPATH}
 RUN if [ "$VERSION" = "latest" ]; \
-    then git clone https://github.com/hashicorp/packer.git --branch master --single-branch; \
+    then git clone https://github.com/hashicorp/packer.git --branch main --single-branch; \
     else git clone https://github.com/hashicorp/packer.git --branch v${VERSION} --single-branch; \
     fi
 

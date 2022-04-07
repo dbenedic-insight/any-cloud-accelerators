@@ -145,7 +145,7 @@ gcp-base: base ## Builds a common intermediate base container for GCP
 gcp-sdk: gcp-base python openssl ## Builds the Google Cloud Platform (GCP) SDK in a container
 	docker build --rm ./gcp/sdk --build-arg BASEIMAGE=$(GCP_BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(GCP_CLI_VERSION) -t $(GCP_CLI_IMAGE_TAG)
 
-gcp-tf-dev: gcp-sdk terraform packer jq ## Builds an GCP-specific terraform container for terraform development
+gcp-tf-dev: gcp-sdk terraform packer jq ansible ## Builds an GCP-specific terraform container for terraform development
 	docker build --rm ./gcp/terraform-dev --build-arg BASEIMAGE=$(GCP_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg ANSIBLEIMAGE=$(ANSIBLE_IMAGE_TAG) -t $(GCP_TF_DEV_IMAGE_TAG)
 
 gcp: base gcp-sdk

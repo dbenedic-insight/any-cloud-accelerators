@@ -6,7 +6,7 @@ BASE_IMAGE              = $(IMAGE_PREFIX)-base
 BASE_VERSION           ?= 20.04
 BASE_IMAGE_TAG          = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE             = $(IMAGE_PREFIX)-vault
-VAULT_VERSION          ?= 1.8.5
+VAULT_VERSION          ?= 1.10.0
 VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_DEV_IMAGE_TAG     = $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
@@ -17,8 +17,9 @@ PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
 PACKER_VERSION         ?= latest
 PACKER_IMAGE_TAG        = $(PACKER_IMAGE):$(PACKER_VERSION)
 GO_IMAGE                = $(IMAGE_PREFIX)-go
-GO_VERSION             ?= 1.17.5
+GO_VERSION             ?= 1.18.1
 GO_IMAGE_TAG            = $(GO_IMAGE):$(GO_VERSION)
+GO_DEV_IMAGE_TAG        = $(GO_IMAGE)-dev:$(GO_VERSION)
 RUBY_IMAGE              = $(IMAGE_PREFIX)-ruby
 RUBY_VERSION           ?= 3.1.1
 RUBY_IMAGE_TAG          = $(RUBY_IMAGE):$(RUBY_VERSION)
@@ -96,6 +97,9 @@ openssl: base ## Builds an openssl container
 
 go: base openssl ## Builds a go build container
 	docker build --rm ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) -t $(GO_IMAGE_TAG)
+
+go-dev: base openssl go vault ## Builds a go build container
+	docker build --rm ./common/go/dev --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VAULTIMAGE=$(VAULT_IMAGE_TAG) -t $(GO_DEV_IMAGE_TAG)
 
 ruby: base openssl ## Builds a ruby container
 	docker build --rm ./common/ruby --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(RUBY_VERSION) -t $(RUBY_IMAGE_TAG)

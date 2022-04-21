@@ -11,7 +11,7 @@ VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_DEV_IMAGE_TAG     = $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
-TERRAFORM_VERSION      ?= 1.1.7
+TERRAFORM_VERSION      ?= 1.1.8
 TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
 PACKER_VERSION         ?= latest
@@ -158,7 +158,7 @@ aws-cli: base openssl python ## Builds an azcli container
 	docker build --rm ./aws/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AWS_CLI_VERSION) -t $(AWS_CLI_IMAGE_TAG)
 
 aws-tf-dev: aws-cli terraform packer jq ## Builds an AWS-specific terraform container
-	docker build --rm ./aws/terraform-dev --build-arg BASEIMAGE=$(AWS_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(AZURE_TF_DEV_IMAGE_TAG)
+	docker build --rm ./aws/terraform-dev --build-arg BASEIMAGE=$(AWS_CLI_IMAGE_TAG) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg PACKERIMAGE=$(PACKER_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) -t $(AWS_TF_DEV_IMAGE_TAG)
 
 aws: aws-cli aws-tf-dev
 

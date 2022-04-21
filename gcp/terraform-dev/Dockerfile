@@ -21,7 +21,13 @@ COPY --from=tf /usr/local/bin/terraform-bundle .
 COPY --from=packer /usr/local/bin/packer .
 COPY --from=jq /usr/local/bin/jq .
 COPY --from=ansible ${PYTHONPATH}/. ${PYTHONPATH}
-COPY --from=build /usr/local/bin/git .
+COPY --from=build /usr/bin/git .
+
+WORKDIR /usr/lib/git-core
+COPY --from=build /usr/lib/git-core .
+
+WORKDIR /usr/lib/x86_64-linux-gnu
+COPY --from=build /usr/lib/x86_64-linux-gnu .
 
 WORKDIR /
 

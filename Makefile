@@ -16,6 +16,9 @@ TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
 PACKER_VERSION         ?= latest
 PACKER_IMAGE_TAG        = $(PACKER_IMAGE):$(PACKER_VERSION)
+CONSUL_IMAGE            = $(IMAGE_PREFIX)-consul
+CONSUL_VERSION         ?= 1.12.0
+CONSUL_IMAGE_TAG        = $(CONSUL_IMAGE):$(CONSUL_VERSION)
 GO_IMAGE                = $(IMAGE_PREFIX)-go
 GO_VERSION             ?= 1.18.1
 GO_IMAGE_TAG            = $(GO_IMAGE):$(GO_VERSION)
@@ -121,6 +124,9 @@ terraform: base go openssl ## Builds terraform container
 
 packer: base go ## Builds packer container
 	docker build --rm ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
+
+consul: base go jq openssl ## Builds vault container
+	docker build --rm ./common/consul --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(CONSUL_VERSION) -t $(CONSUL_IMAGE_TAG)
 
 common: terraform vault ## Builds all common images in toolchain
 

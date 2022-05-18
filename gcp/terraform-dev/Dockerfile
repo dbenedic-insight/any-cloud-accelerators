@@ -17,7 +17,6 @@ FROM ${BASEIMAGE} AS final
 
 WORKDIR /usr/local/bin
 COPY --from=tf /usr/local/bin/terraform .
-COPY --from=tf /usr/local/bin/terraform-bundle .
 COPY --from=packer /usr/local/bin/packer .
 COPY --from=jq /usr/local/bin/jq .
 COPY --from=ansible ${PYTHONPATH}/. ${PYTHONPATH}

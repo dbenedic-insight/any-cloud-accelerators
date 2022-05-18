@@ -24,7 +24,6 @@ FROM ${BASEIMAGE} AS final
 
 WORKDIR /usr/local/bin
 COPY --from=build ${GOPATH}/bin/terraform .
-COPY --from=build /usr/local/src/terraform-bundle/terraform-bundle .
 
 WORKDIR /etc/ssl/certs
 COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .

@@ -11,7 +11,7 @@ FROM ${ANSIBLEIMAGE} AS ansible
 
 FROM ${BASEIMAGE} AS build
 RUN apt-get update -qq && apt-get install -y -qq \
-    git-all
+    git-core
 
 FROM ${BASEIMAGE} AS final
 

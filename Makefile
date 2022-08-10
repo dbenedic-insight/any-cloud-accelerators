@@ -8,12 +8,12 @@ BASE_IMAGE              = $(IMAGE_PREFIX)-base
 BASE_VERSION           ?= 20.04
 BASE_IMAGE_TAG          = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE             = $(IMAGE_PREFIX)-vault
-VAULT_VERSION          ?= 1.10.2
+VAULT_VERSION          ?= 1.11.2
 VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_DEV_IMAGE_TAG     = $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
-TERRAFORM_VERSION      ?= 1.1.9
+TERRAFORM_VERSION      ?= 1.2.6
 TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
 PACKER_VERSION         ?= latest
@@ -22,7 +22,7 @@ CONSUL_IMAGE            = $(IMAGE_PREFIX)-consul
 CONSUL_VERSION         ?= 1.12.0
 CONSUL_IMAGE_TAG        = $(CONSUL_IMAGE):$(CONSUL_VERSION)
 GO_IMAGE                = $(IMAGE_PREFIX)-go
-GO_VERSION             ?= 1.18.1
+GO_VERSION             ?= 1.19
 GO_IMAGE_TAG            = $(GO_IMAGE):$(GO_VERSION)
 GO_DEV_IMAGE_TAG        = $(GO_IMAGE)-dev:$(GO_VERSION)
 RUBY_IMAGE              = $(IMAGE_PREFIX)-ruby
@@ -38,7 +38,7 @@ PYTHON_IMAGE            = $(IMAGE_PREFIX)-python
 PYTHON_VERSION         ?= 3.10.4
 PYTHON_IMAGE_TAG        = $(PYTHON_IMAGE):$(PYTHON_VERSION)
 OPENSSL_IMAGE           = $(IMAGE_PREFIX)-openssl
-OPENSSL_VERSION        ?= 1.1.1o
+OPENSSL_VERSION        ?= 1.1.1q
 OPENSSL_IMAGE_TAG       = $(OPENSSL_IMAGE):$(OPENSSL_VERSION)
 IBM_CLI_IMAGE           = $(IMAGE_PREFIX)-ibm-cli
 IBM_CLI_VERSION        ?= 2.7.0
@@ -47,7 +47,7 @@ IBM_TF_IMAGE            = $(IMAGE_PREFIX)-ibm-tf
 IBM_TF_VERSION         ?= latest
 IBM_TF_IMAGE_TAG        = $(IBM_TF_IMAGE):$(IBM_TF_VERSION)
 AZURE_CLI_IMAGE         = $(IMAGE_PREFIX)-az-cli
-AZURE_CLI_VERSION      ?= 2.36.0
+AZURE_CLI_VERSION      ?= 2.39.0
 AZURE_CLI_IMAGE_TAG     = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
 AZURE_TF_IMAGE          = $(IMAGE_PREFIX)-az-tf
 AZURE_TF_IMAGE_TAG      = $(AZURE_TF_IMAGE):$(TERRAFORM_VERSION)
@@ -125,7 +125,7 @@ terraform: base go openssl ## Builds terraform container
 	$(BUILD_COMMAND) ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)
 
 packer: base go ## Builds packer container
-	$(BUILD_COMMAND) ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
+	$(BUILD_COMMAND) ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
 
 consul: base go jq openssl ## Builds vault container
 	$(BUILD_COMMAND) ./common/consul --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(CONSUL_VERSION) -t $(CONSUL_IMAGE_TAG)

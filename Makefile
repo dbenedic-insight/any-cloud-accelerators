@@ -42,7 +42,7 @@ OPENSSL_IMAGE           = $(IMAGE_PREFIX)-openssl
 OPENSSL_VERSION        ?= 3.0.8
 OPENSSL_IMAGE_TAG       = $(OPENSSL_IMAGE):$(OPENSSL_VERSION)
 IBM_CLI_IMAGE           = $(IMAGE_PREFIX)-ibm-cli
-IBM_CLI_VERSION        ?= 2.7.0
+IBM_CLI_VERSION        ?= 2.15.0
 IBM_CLI_IMAGE_TAG       = $(IBM_CLI_IMAGE):$(IBM_CLI_VERSION)
 IBM_TF_IMAGE            = $(IMAGE_PREFIX)-ibm-tf
 IBM_TF_VERSION         ?= latest
@@ -137,7 +137,7 @@ ibm-tf: terraform go ## Builds a terraform container with the IBM provider plugi
 	$(BUILD_COMMAND) ./IBM/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(IBM_TF_VERSION) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) -t $(IBM_TF_IMAGE_TAG)
 
 ibm-cli: base openssl ## Builds the IBM Cloud CLI with plugins in a container
-	$(BUILD_COMMAND) ./IBM/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(IBM_CLI_VERSION) -t $(IBM_CLI_IMAGE_TAG)
+	$(BUILD_COMMAND) ./IBM/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(IBM_CLI_VERSION) --build-arg PLATFORM_SHORT=$(PLATFORM_SHORT) -t $(IBM_CLI_IMAGE_TAG)
 
 ibm: ibm-tf ibm-cli ## Builds all IBM Cloud accelerators in containers
 

@@ -5,7 +5,8 @@ FROM ${OPENSSLIMAGE} AS openssl
 
 FROM ${BASEIMAGE} AS build
 ARG VERSION=
-ARG ARCHIVE=IBM_Cloud_CLI_${VERSION}_linux_amd64.tgz
+ARG PLATFORM_SHORT=
+ARG ARCHIVE=IBM_Cloud_CLI_${VERSION}_linux_${PLATFORM_SHORT}.tgz
 ARG BINPATH=/usr/local/src/ibm-cli
 
 RUN apt-get update -qq && apt-get install -y -qq \

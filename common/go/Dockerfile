@@ -5,7 +5,8 @@ FROM ${OPENSSLIMAGE} as openssl
 
 FROM ${BASEIMAGE} AS build
 ARG VERSION=
-ARG ARCHIVE=go${VERSION}.linux-amd64.tar.gz
+ARG PLATFORM_SHORT=
+ARG ARCHIVE=go${VERSION}.linux-${PLATFORM_SHORT}.tar.gz
 ARG TMPSHA=/tmp/goshasum
 
 RUN apt-get update && apt-get install -y -qq \

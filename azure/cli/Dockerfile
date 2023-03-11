@@ -8,6 +8,7 @@ FROM ${PYTHONIMAGE} AS python
 FROM ${BASEIMAGE} AS final
 ARG VERSION=
 ARG APTPKG=${VERSION}-1
+ARG PLATFORM_SHORT=
 
 RUN apt-get update -qq && apt-get install -y -qq \
     curl \
@@ -21,7 +22,7 @@ RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc \
     | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
 
 RUN export AZ_REPO=$(lsb_release -cs) \
-    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" \
+    && echo "deb [arch=${PLATFORM_SHORT}] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" \
     | tee /etc/apt/sources.list.d/azure-cli.list
 
 COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}

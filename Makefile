@@ -1,32 +1,33 @@
 SHELL                   = /bin/sh
 IMAGE_PREFIX           ?= aca
-PLATFORM               ?= linux/amd64
+PLATFORM               ?= linux/arm64
+PLATFORM_SHORT         ?= $(word 2,$(subst /, ,$(PLATFORM))) ## splits on '/'
 BUILD_COMMAND           = docker build --rm --platform $(PLATFORM)
 REPO_IMAGES            := $(shell docker images -q '$(PREFIX)*' | uniq)
 DANGLING_IMAGES        := $(shell docker images --filter "dangling = true" -q)
 BASE_IMAGE              = $(IMAGE_PREFIX)-base
-BASE_VERSION           ?= 20.04
+BASE_VERSION           ?= 22.04 ## ubuntu
 BASE_IMAGE_TAG          = $(BASE_IMAGE):$(BASE_VERSION)
 VAULT_IMAGE             = $(IMAGE_PREFIX)-vault
-VAULT_VERSION          ?= 1.10.2
+VAULT_VERSION          ?= 1.13.0
 VAULT_IMAGE_TAG         = $(VAULT_IMAGE):$(VAULT_VERSION)
 VAULT_DEV_IMAGE_TAG     = $(VAULT_IMAGE)-dev:$(VAULT_VERSION)
 VAULT_MODE             ?= dev ## Supports 'dev' or 'ui' ('ui' significantly increases build time)
 TERRAFORM_IMAGE         = $(IMAGE_PREFIX)-terraform
-TERRAFORM_VERSION      ?= 1.1.9
+TERRAFORM_VERSION      ?= 1.4.0
 TERRAFORM_IMAGE_TAG     = $(TERRAFORM_IMAGE):$(TERRAFORM_VERSION)
 PACKER_IMAGE            = $(IMAGE_PREFIX)-packer
 PACKER_VERSION         ?= latest
 PACKER_IMAGE_TAG        = $(PACKER_IMAGE):$(PACKER_VERSION)
 CONSUL_IMAGE            = $(IMAGE_PREFIX)-consul
-CONSUL_VERSION         ?= 1.12.0
+CONSUL_VERSION         ?= 1.15.1
 CONSUL_IMAGE_TAG        = $(CONSUL_IMAGE):$(CONSUL_VERSION)
 GO_IMAGE                = $(IMAGE_PREFIX)-go
-GO_VERSION             ?= 1.18.1
+GO_VERSION             ?= 1.20.2
 GO_IMAGE_TAG            = $(GO_IMAGE):$(GO_VERSION)
 GO_DEV_IMAGE_TAG        = $(GO_IMAGE)-dev:$(GO_VERSION)
 RUBY_IMAGE              = $(IMAGE_PREFIX)-ruby
-RUBY_VERSION           ?= 3.1.1
+RUBY_VERSION           ?= 3.2.1
 RUBY_IMAGE_TAG          = $(RUBY_IMAGE):$(RUBY_VERSION)
 TERRAFORMER_IMAGE       = $(IMAGE_PREFIX)-terraformer
 TERRAFORMER_VERSION    ?= latest
@@ -38,16 +39,16 @@ PYTHON_IMAGE            = $(IMAGE_PREFIX)-python
 PYTHON_VERSION         ?= 3.10.4
 PYTHON_IMAGE_TAG        = $(PYTHON_IMAGE):$(PYTHON_VERSION)
 OPENSSL_IMAGE           = $(IMAGE_PREFIX)-openssl
-OPENSSL_VERSION        ?= 1.1.1o
+OPENSSL_VERSION        ?= 3.0.8
 OPENSSL_IMAGE_TAG       = $(OPENSSL_IMAGE):$(OPENSSL_VERSION)
 IBM_CLI_IMAGE           = $(IMAGE_PREFIX)-ibm-cli
-IBM_CLI_VERSION        ?= 2.7.0
+IBM_CLI_VERSION        ?= 2.15.0
 IBM_CLI_IMAGE_TAG       = $(IBM_CLI_IMAGE):$(IBM_CLI_VERSION)
 IBM_TF_IMAGE            = $(IMAGE_PREFIX)-ibm-tf
 IBM_TF_VERSION         ?= latest
 IBM_TF_IMAGE_TAG        = $(IBM_TF_IMAGE):$(IBM_TF_VERSION)
 AZURE_CLI_IMAGE         = $(IMAGE_PREFIX)-az-cli
-AZURE_CLI_VERSION      ?= 2.36.0
+AZURE_CLI_VERSION      ?= 2.46.0
 AZURE_CLI_IMAGE_TAG     = $(AZURE_CLI_IMAGE):$(AZURE_CLI_VERSION)
 AZURE_TF_IMAGE          = $(IMAGE_PREFIX)-az-tf
 AZURE_TF_IMAGE_TAG      = $(AZURE_TF_IMAGE):$(TERRAFORM_VERSION)
@@ -101,9 +102,9 @@ openssl: base ## Builds an openssl container
 	$(BUILD_COMMAND) ./common/openssl --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(OPENSSL_VERSION) -t $(OPENSSL_IMAGE_TAG)
 
 go: base openssl ## Builds a go build container
-	$(BUILD_COMMAND) ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) -t $(GO_IMAGE_TAG)
+	$(BUILD_COMMAND) ./common/go --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(GO_VERSION) --build-arg PLATFORM_SHORT=$(PLATFORM_SHORT) -t $(GO_IMAGE_TAG)
 
-go-dev: base openssl go vault ## Builds a go build container
+go-dev: base openssl go vault ## Builds a go dev container
 	$(BUILD_COMMAND) ./common/go/dev --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VAULTIMAGE=$(VAULT_IMAGE_TAG) -t $(GO_DEV_IMAGE_TAG)
 
 ruby: base openssl ## Builds a ruby container
@@ -127,7 +128,7 @@ terraform: base go openssl ## Builds terraform container
 packer: base go ## Builds packer container
 	$(BUILD_COMMAND) ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)
 
-consul: base go jq openssl ## Builds vault container
+consul: base go jq openssl ## Builds consul container
 	$(BUILD_COMMAND) ./common/consul --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg JQIMAGE=$(JQ_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(CONSUL_VERSION) -t $(CONSUL_IMAGE_TAG)
 
 common: terraform vault ## Builds all common images in toolchain
@@ -136,12 +137,12 @@ ibm-tf: terraform go ## Builds a terraform container with the IBM provider plugi
 	$(BUILD_COMMAND) ./IBM/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(IBM_TF_VERSION) --build-arg TFIMAGE=$(TERRAFORM_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) -t $(IBM_TF_IMAGE_TAG)
 
 ibm-cli: base openssl ## Builds the IBM Cloud CLI with plugins in a container
-	$(BUILD_COMMAND) ./IBM/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(IBM_CLI_VERSION) -t $(IBM_CLI_IMAGE_TAG)
+	$(BUILD_COMMAND) ./IBM/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(IBM_CLI_VERSION) --build-arg PLATFORM_SHORT=$(PLATFORM_SHORT) -t $(IBM_CLI_IMAGE_TAG)
 
 ibm: ibm-tf ibm-cli ## Builds all IBM Cloud accelerators in containers
 
 az-cli: base openssl python jq ## Builds an azcli container
-	$(BUILD_COMMAND) ./azure/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AZURE_CLI_VERSION) -t $(AZURE_CLI_IMAGE_TAG)
+	$(BUILD_COMMAND) ./azure/cli --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg PYTHONIMAGE=$(PYTHON_IMAGE_TAG) --build-arg VERSION=$(AZURE_CLI_VERSION) --build-arg PLATFORM_SHORT=$(PLATFORM_SHORT) -t $(AZURE_CLI_IMAGE_TAG)
 
 azapi: base openssl go ## Builds an azapi Terraform provider
 	$(BUILD_COMMAND) ./azure/providers/azapi --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg VERSION=$(AZAPI_VERSION) -t $(AZAPI_IMAGE_TAG)

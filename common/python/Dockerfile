@@ -35,8 +35,8 @@ RUN mkdir python-build \
 
 WORKDIR /usr/local/src/python-build
 COPY --from=openssl ${OPENSSLPATH} ${OPENSSLPATH}
-ENV LDFLAGS="-L$OPENSSLPATH/lib"
-ENV CPPFLAGS="-I$OPENSSLPATH/include"
+ENV LDFLAGS="-L$OPENSSLPATH/lib64"
+ENV CFLAGS="-I$OPENSSLPATH/include"
 RUN ./configure --enable-optimizations --with-ensurepip=install --prefix=${PYTHONPATH} --with-openssl=${OPENSSLPATH} --with-pydebug \
     && make build_all\
     && make install

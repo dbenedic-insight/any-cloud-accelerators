@@ -24,9 +24,11 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.c
     | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - \
     && apt-get update -qq
 
+ENV CLOUDSDK_PYTHON=${PYTHONPATH}/bin/python3
+
 RUN if [ "$VERSION" = "latest" ]; \
     then apt-get install -y google-cloud-cli; \
-    else apt-get install -y googld-cloud-cli=${APTPK}; \
+    else apt-get install -y google-cloud-cli=${APTPK}; \
     fi
 
 ENV PYTHONWARNINGS="ignore"

@@ -25,8 +25,8 @@ COPY --from=build /usr/bin/git .
 WORKDIR /usr/lib/git-core
 COPY --from=build /usr/lib/git-core .
 
-WORKDIR /usr/lib/x86_64-linux-gnu
-COPY --from=build /usr/lib/x86_64-linux-gnu .
+#WORKDIR /usr/lib/x86_64-linux-gnu
+#COPY --from=build /usr/lib/x86_64-linux-gnu .
 
 WORKDIR /
 

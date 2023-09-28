@@ -35,6 +35,7 @@ WORKDIR ${GOROOT}
 COPY --from=build /usr/local/src/go/src ./src
 COPY --from=build /usr/local/src/go/bin ./bin
 COPY --from=build /usr/local/src/go/pkg ./pkg
+COPY --from=build /usr/local/src/go/go.env ./go.env
 
 WORKDIR /
 

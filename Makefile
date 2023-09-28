@@ -80,6 +80,9 @@ JQ_IMAGE_TAG            = $(JQ_IMAGE):$(JQ_VERSION)
 AZAPI_IMAGE             = $(IMAGE_PREFIX)-azapi
 AZAPI_VERSION          ?= latest
 AZAPI_IMAGE_TAG         = $(AZAPI_IMAGE):$(AZAPI_VERSION)
+OPENTOFU_IMAGE          = $(IMAGE_PREFIX)-terraform
+OPENTOFU_VERSION       ?= latest
+OPENTOFU_IMAGE_TAG      = $(OPENTOFU_IMAGE):$(OPENTOFU_VERSION)
 
 
 # HELP
@@ -124,6 +127,9 @@ vault-dev: vault terraform ## Builds a vault dev environment container
 
 terraform: base go openssl ## Builds terraform container
 	$(BUILD_COMMAND) ./common/terraform --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(TERRAFORM_VERSION) -t $(TERRAFORM_IMAGE_TAG)
+
+opentofu: base go openssl ## Builds opentofu container
+	$(BUILD_COMMAND) ./common/opentofu --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(OPENTOFU_VERSION) -t $(OPENTOFU_IMAGE_TAG)
 
 packer: base go ## Builds packer container
 	$(BUILD_COMMAND) ./common/packer --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg GOIMAGE=$(GO_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PACKER_VERSION) -t $(PACKER_IMAGE_TAG)

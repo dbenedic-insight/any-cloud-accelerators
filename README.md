@@ -8,7 +8,7 @@ For example, `make terraform` will build the version of Terraform specified in t
 
 ## Prerequisites
 You will need:
-1. [Docker Desktop](https://www.docker.com/products/docker-desktop)
+1. [Docker Desktop](https://www.docker.com/products/docker-desktop) or [equivalent](https://rancherdesktop.io/)
 1. A POSIX-compliant terminal
 1. [make](https://www.gnu.org/software/make/)
 

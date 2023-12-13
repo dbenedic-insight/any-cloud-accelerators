@@ -1,6 +1,6 @@
 SHELL                   = /bin/sh
 IMAGE_PREFIX           ?= aca
-PLATFORM               ?= linux/arm64
+PLATFORM               ?= linux/amd64
 PLATFORM_SHORT         ?= $(word 2,$(subst /, ,$(PLATFORM))) ## splits on '/'
 BUILD_COMMAND           = docker build --rm --platform $(PLATFORM)
 REPO_IMAGES            := $(shell docker images -q '$(PREFIX)*' | uniq)

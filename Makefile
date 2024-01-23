@@ -34,6 +34,7 @@ TERRAFORMER_VERSION    ?= latest
 TERRAFORMER_IMAGE_TAG   = $(TERRAFORMER_IMAGE):$(TERRAFORMER_VERSION)
 NODE_IMAGE              = $(IMAGE_PREFIX)-node
 NODE_VERSION           ?= 20.7.0
+NODE_ARCH              ?= $(subst /,-,$(PLATFORM))
 NODE_IMAGE_TAG          = $(NODE_IMAGE):$(NODE_VERSION)
 PYTHON_IMAGE            = $(IMAGE_PREFIX)-python
 PYTHON_VERSION         ?= 3.11.5
@@ -111,7 +112,7 @@ ruby: base openssl ## Builds a ruby container
 	$(BUILD_COMMAND) ./common/ruby --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(RUBY_VERSION) -t $(RUBY_IMAGE_TAG)
 
 node: base ## Builds a nodejs build container
-	$(BUILD_COMMAND) ./common/node --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(NODE_VERSION) -t $(NODE_IMAGE_TAG)
+	$(BUILD_COMMAND) ./common/node --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg VERSION=$(NODE_VERSION) --build-arg ARCH=$(NODE_ARCH) -t $(NODE_IMAGE_TAG)
 
 python: base openssl ## Builds a python build container
 	$(BUILD_COMMAND) ./common/python --build-arg BASEIMAGE=$(BASE_IMAGE_TAG) --build-arg OPENSSLIMAGE=$(OPENSSL_IMAGE_TAG) --build-arg VERSION=$(PYTHON_VERSION) -t $(PYTHON_IMAGE_TAG)

@@ -2,7 +2,8 @@ ARG BASEIMAGE=
 
 FROM ${BASEIMAGE} AS build
 ARG VERSION=12.16.3
-ARG ARCHIVE=node-v${VERSION}-linux-x64.tar.gz
+ARG ARCH=linux-x64
+ARG ARCHIVE=node-v${VERSION}-${ARCH}.tar.gz
 
 RUN apt-get update -qq && apt-get install -y -qq \
   curl \

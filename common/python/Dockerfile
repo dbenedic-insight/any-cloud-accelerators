@@ -27,9 +27,10 @@ RUN miniversion=$(echo $VERSION | sed -e 's/\.//g') \
 
 WORKDIR /usr/local/src
 RUN curl -L -O https://www.python.org/ftp/python/${VERSION}/$ARCHIVE
-RUN export SHASUM=$(cat $TMPSHA) \
-    && echo "$SHASUM  $ARCHIVE" > MD5SUM.txt # two spaces between the sum and filename
-RUN grep ${ARCHIVE} MD5SUM.txt | md5sum -c -
+# SHASUMS are not available on release download page after recent redesign
+# RUN export SHASUM=$(cat $TMPSHA) \
+#     && echo "$SHASUM  $ARCHIVE" > MD5SUM.txt # two spaces between the sum and filename
+# RUN grep ${ARCHIVE} MD5SUM.txt | md5sum -c -
 RUN mkdir python-build \
     && tar xzf $ARCHIVE -C python-build --strip-components 1
 

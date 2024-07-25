@@ -9,21 +9,23 @@ ARG VERSION=latest
 
 RUN apt-get update -qq && apt-get install -y -qq \
     git \
-    curl
+    build-essential \
+    curl \
+    apt-utils
 
 WORKDIR /usr/local/src
 RUN if [ "$VERSION" = "latest" ]; \
-    then git clone https://github.com/hashicorp/terraform.git --branch master --single-branch; \
-    else git clone https://github.com/hashicorp/terraform.git --branch v${VERSION} --single-branch; \
+    then git clone https://github.com/hashicorp/hcp.git --branch main --single-branch; \
+    else git clone https://github.com/hashicorp/hcp.git --branch v${VERSION} --single-branch; \
     fi
 
-WORKDIR /usr/local/src/terraform
-RUN go install .
+WORKDIR /usr/local/src/hcp
+RUN make go/install
 
 FROM ${BASEIMAGE} AS final
 
 WORKDIR /usr/local/bin
-COPY --from=build ${GOPATH}/bin/terraform .
+COPY --from=build ${GOPATH}/bin/hcp .
 
 WORKDIR /etc/ssl/certs
 COPY --from=openssl /etc/ssl/certs/ca-certificates.crt .
